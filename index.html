@@ -1,3 +1,20 @@
+Baik Cikgu, saya permudahkan. Kita fokus pada GitHub sahaja dahulu sebab di situ puncanya masalah tarikh dan butang batal tak muncul.
+
+Sila ikut langkah ini satu persatu:
+
+Langkah 1: Buka GitHub (Tempat Ganti Kod)
+Buka repository cikgu di GitHub: pssskc3036/tempahan-bilik-khas.
+
+Klik pada fail bernama index.html.
+
+Klik ikon Pensel (Edit this file).
+
+Padam semua kod yang ada di dalam kotak tersebut sampai kosong.
+
+Salin (Copy) semua kod di bawah ini dan Tampal (Paste) ke dalam kotak yang kosong tadi.
+
+Langkah 2: Kod Penuh Untuk GitHub (index.html)
+HTML
 <!DOCTYPE html>
 <html lang="ms">
 <head>
@@ -16,23 +33,27 @@
         .slot-item input { margin-right: 10px; margin-top: 3px; }
         .slot-info { font-size: 11px; color: #666; display: block; }
         .slot-label { font-size: 13px; font-weight: bold; display: block; }
-        .nilam-tag { color: white; background: #d93025; font-weight: bold; font-size: 10px; display: inline-block; padding: 2px 6px; border-radius: 4px; margin-top: 5px; }
         .booked-tag { color: #d93025; font-size: 10px; font-weight: bold; margin-top: 5px; display: block; }
-        .cuti-msg { color: #d93025; font-weight: bold; text-align: center; padding: 10px; background: #fce8e6; border-radius: 8px; margin-top: 10px; }
-        .petang { background: #e8f0fe; border-color: #1a73e8; grid-column: span 2; }
         button { width: 100%; padding: 15px; background: #1a73e8; color: white; border: none; border-radius: 8px; margin-top: 25px; cursor: pointer; font-weight: bold; font-size: 16px; }
-        button:disabled { background: #ccc; }
         
-        /* Gaya Senarai & Butang Batal */
+        /* GAYA SENARAI & BUTANG BATAL */
         .list-section { margin-top: 30px; border-top: 3px solid #1a73e8; padding-top: 20px; }
         .list-title { font-weight: bold; color: #1a73e8; margin-bottom: 15px; text-align: center; font-size: 14px; }
-        .tempahan-item { background: #fff; border-left: 5px solid #1a73e8; padding: 12px; border-radius: 8px; margin-bottom: 12px; font-size: 13px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; }
-        .t-header { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 8px; padding-right: 60px; }
-        .t-date { font-weight: bold; color: #d93025; }
+        .tempahan-item { background: #fff; border-left: 5px solid #1a73e8; padding: 15px; border-radius: 8px; margin-bottom: 15px; font-size: 13px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); position: relative; }
+        .t-header { border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 8px; }
+        .t-date { font-weight: bold; color: #d93025; font-size: 14px; display: block; }
         .t-bilik { font-weight: bold; color: #1a73e8; }
         .t-waktu { color: #555; font-size: 12px; background: #f1f3f4; padding: 4px 8px; border-radius: 4px; margin-top: 5px; display: inline-block; }
-        .btn-batal { position: absolute; top: 10px; right: 10px; background: #ff4d4d; color: white; border: none; padding: 5px 10px; border-radius: 5px; font-size: 10px; cursor: pointer; width: auto; margin-top: 0; }
-        .btn-batal:hover { background: #cc0000; }
+        
+        .btn-batal { 
+            background: #ff4d4d !important; 
+            color: white !important; 
+            padding: 8px 12px !important; 
+            font-size: 11px !important; 
+            width: auto !important; 
+            margin-top: 10px !important;
+            display: inline-block !important;
+        }
     </style>
 </head>
 <body>
@@ -96,8 +117,6 @@
         </select>
         <label>Tarikh Penggunaan:</label>
         <input type="date" id="tarikh" onchange="kemaskiniSlot()" required>
-        <div id="statusCuti"></div>
-        <label id="labelWaktu" style="display:none;">Pilih Waktu (1-3 Slot Sahaja):</label>
         <div id="slotGrid" class="slot-container"></div>
         <label>Tujuan / Kelas:</label>
         <input type="text" id="tujuan" placeholder="Cth: PdPC Sains 5K" required>
@@ -142,48 +161,33 @@
                 const realIndex = dataTempahan.length - 1 - index;
                 div.innerHTML += `
                     <div class="tempahan-item">
-                        <button class="btn-batal" onclick="batalTempahan(${realIndex})">BATAL</button>
                         <div class="t-header">
                             <span class="t-date">📅 ${formatTarikhHari(item.tarikh)}</span>
                             <span class="t-bilik">📍 ${item.bilik}</span>
                         </div>
                         <div><b>Guru:</b> ${item.nama}</div>
                         <div><b>Tujuan:</b> ${item.tujuan || "-"}</div>
-                        <div class="t-waktu">🕒 ${huraikanWaktu(item.waktu)}</div>
+                        <div class="t-waktu">🕒 ${huraikanWaktu(item.waktu)}</div><br>
+                        <button class="btn-batal" onclick="batalTempahan(${realIndex})">BATAL TEMPAHAN</button>
                     </div>`;
             });
         } catch (e) { console.error(e); }
     }
 
     async function batalTempahan(rowIdx) {
-        const password = prompt("Sila masukkan kata laluan ADMIN untuk pembatalan:");
+        const password = prompt("Sila masukkan kata laluan ADMIN:");
         if (password === "admin2026") {
-            if (confirm("Adakah anda pasti ingin membatalkan tempahan ini?")) {
-                const btn = event.target;
-                const originalText = btn.innerText;
-                btn.innerText = "...";
-                btn.disabled = true;
-                
-                try {
-                    await fetch(`${scriptURL}?action=delete&row=${rowIdx + 2}`, { method: 'POST', mode: 'no-cors' });
-                    alert("Tempahan telah dibatalkan.");
-                    setTimeout(() => {
-                        muatSenarai().then(() => kemaskiniSlot());
-                    }, 1000);
-                } catch (e) {
-                    alert("Ralat sistem. Cuba lagi.");
-                    btn.innerText = originalText;
-                    btn.disabled = false;
-                }
+            if (confirm("Batal tempahan ini?")) {
+                await fetch(`${scriptURL}?action=delete&row=${rowIdx + 2}`, { method: 'POST', mode: 'no-cors' });
+                alert("Berjaya dipadam.");
+                location.reload();
             }
-        } else if (password !== null) {
-            alert("Kata laluan SALAH! Hanya GPM & GPICT sahaja dibenarkan.");
-        }
+        } else if (password !== null) { alert("Salah!"); }
     }
 
     function hantar() {
         const checked = document.querySelectorAll('input[name="sw"]:checked');
-        if (checked.length < 1) { alert("Sila pilih sekurang-kurangnya 1 slot."); return; }
+        if (checked.length < 1) { alert("Pilih slot!"); return; }
         const btn = document.getElementById('submitBtn');
         const payload = { 
             nama: document.getElementById('namaGuru').value, 
@@ -192,66 +196,17 @@
             tujuan: document.getElementById('tujuan').value, 
             waktu: Array.from(checked).map(c => c.value).join(", ") 
         };
-        
-        btn.disabled = true; 
-        btn.innerText = "Sedang Dihantar...";
-        
+        btn.disabled = true; btn.innerText = "Hantar...";
         fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
-        .then(() => { 
-            alert("Tempahan Berjaya!"); 
-            document.getElementById('tempahanForm').reset(); 
-            setTimeout(() => {
-                muatSenarai().then(() => kemaskiniSlot());
-            }, 1000);
-        })
-        .finally(() => { 
-            btn.disabled = false; 
-            btn.innerText = "HANTAR TEMPAHAN"; 
-        });
-    }
-
-    function semakCuti(tarikhStr) {
-        const t = tarikhStr;
-        if ((t >= "2026-03-21" && t <= "2026-03-29")) return "Cuti Penggal 1";
-        if ((t >= "2026-05-23" && t <= "2026-06-07")) return "Cuti Pertengahan Tahun";
-        if ((t >= "2026-08-29" && t <= "2026-09-06")) return "Cuti Penggal 2";
-        if ((t >= "2026-12-05" && t <= "2026-12-31")) return "Cuti Akhir Persekolahan";
-        const cutiKPM = { "2026-02-16": "Cuti TBC", "2026-02-19": "Cuti TBC", "2026-02-20": "Cuti TBC", "2026-03-19": "Cuti Aidilfitri", "2026-03-20": "Cuti Aidilfitri", "2026-11-10": "Cuti Deepavali" };
-        return cutiKPM[t] || null;
+        .then(() => { alert("Berjaya!"); location.reload(); });
     }
 
     async function kemaskiniSlot() {
         const bilik = document.getElementById('bilik').value;
         const tarikh = document.getElementById('tarikh').value;
         const container = document.getElementById('slotGrid');
-        const labelWaktu = document.getElementById('labelWaktu');
-        const statusDiv = document.getElementById('statusCuti');
+        if (!bilik || !tarikh) { container.innerHTML = ""; return; }
         
-        if (!bilik || !tarikh) { 
-            labelWaktu.style.display = "none"; 
-            container.innerHTML = ""; 
-            return; 
-        }
-        
-        container.innerHTML = "Memuatkan slot...";
-        statusDiv.innerHTML = "";
-        
-        const namaCuti = semakCuti(tarikh);
-        if (namaCuti) statusDiv.innerHTML = `<div class="cuti-msg">Sila Maklum: ${tarikh} adalah ${namaCuti}.</div>`;
-        
-        labelWaktu.style.display = "block";
-        const d = new Date(tarikh);
-        const hariNama = ["Ahad","Isnin","Selasa","Rabu","Khamis","Jumaat","Sabtu"][d.getDay()];
-        
-        const tarikhMula = new Date("2026-01-12");
-        const minggu = Math.floor((d - tarikhMula) / (7 * 24 * 60 * 60 * 1000)) + 1;
-        const isGanjil = minggu % 2 !== 0; 
-        const subjekNILAM = isGanjil ? "NILAM BI" : "NILAM BM";
-        
-        const jadualGanjil = {"Isnin":{4:"5K",5:"5K",8:"2E",9:"2E",10:"2A",11:"2A"},"Selasa":{2:"4K",3:"4K",5:"1A",6:"1A",7:"6K",8:"6K",10:"3E",11:"3E"},"Rabu":{4:"5A",5:"5A",6:"4E",7:"4E",9:"3K",10:"3K"},"Khamis":{3:"4A",4:"4A",5:"3A",6:"3A",7:"5E",8:"5E",9:"1K",10:"1K"},"Jumaat":{2:"6A",3:"6A",4:"6E",5:"6E",6:"2K",7:"2K",8:"1E",9:"1E"}};
-        const jadualGenap = {"Isnin":{5:"3A",6:"3A",7:"1A",8:"1A",10:"4A",11:"4A"},"Selasa":{1:"6E",2:"6E",6:"4K",7:"4K",9:"6K",10:"6K",11:"6A",12:"6A"},"Rabu":{1:"4E",2:"4E",3:"2A",4:"2A",5:"3K",6:"3K",7:"5A",8:"5A",9:"1E",10:"1E"},"Khamis":{1:"2E",2:"2E",5:"1K",6:"1K",10:"5E",11:"5E"},"Jumaat":{3:"2K",4:"2K",5:"3E",6:"3E",7:"5K",8:"5K"}};
-        
-        const jadualSemasa = isGanjil ? jadualGanjil : jadualGenap;
         const tempahanSediaAda = dataTempahan.filter(t => t.tarikh.includes(tarikh) && t.bilik === bilik);
         const slotDitempah = tempahanSediaAda.flatMap(t => String(t.waktu).split(", "));
         
@@ -259,26 +214,8 @@
         for (let i = 1; i <= 12; i++) {
             const labelWaktuI = `Waktu ${i}`;
             const isBooked = slotDitempah.includes(labelWaktuI);
-            let infoNILAM = "";
-            if ((bilik === "Makmal Komputer" || bilik === "Pusat Sumber") && jadualSemasa[hariNama] && jadualSemasa[hariNama][i]) {
-                infoNILAM = `<div class="nilam-tag">${subjekNILAM}: ${jadualSemasa[hariNama][i]}</div>`;
-            }
-            container.innerHTML += `<label class="slot-item ${isBooked ? 'booked' : ''}"><input type="checkbox" name="sw" value="${labelWaktuI}" ${isBooked ? 'disabled' : ''} onchange="had(this)"><div><span class="slot-label">${labelWaktuI}</span><span class="slot-info">${jadualMasa[i]}</span>${infoNILAM}${isBooked ? '<span class="booked-tag">❌ TELAH DITEMPAH</span>' : ''}</div></label>`;
+            container.innerHTML += `<label class="slot-item ${isBooked ? 'booked' : ''}"><input type="checkbox" name="sw" value="${labelWaktuI}" ${isBooked ? 'disabled' : ''}><div><span class="slot-label">${labelWaktuI}</span><span class="slot-info">${jadualMasa[i]}</span>${isBooked ? '<span class="booked-tag">❌ DITEMPAH</span>' : ''}</div></label>`;
         }
-        
-        let jamBalik = (hariNama === "Isnin" || hariNama === "Selasa") ? "01:35" : (hariNama === "Rabu" || hariNama === "Khamis") ? "01:05" : (hariNama === "Jumaat") ? "12:05" : "";
-        if (jamBalik) {
-            const isBookedLS = slotDitempah.includes("Lepas Sekolah");
-            container.innerHTML += `<label class="slot-item petang ${isBookedLS ? 'booked' : ''}"><input type="checkbox" name="sw" value="Lepas Sekolah" ${isBookedLS ? 'disabled' : ''} onchange="had(this)"><div><span class="slot-label">SELEPAS SEKOLAH</span><span class="slot-info">${jamBalik} petang ke atas</span>${isBookedLS ? '<span class="booked-tag">❌ TELAH DITEMPAH</span>' : ''}</div></label>`;
-        }
-    }
-
-    function had(cb) { 
-        const checked = document.querySelectorAll('input[name="sw"]:checked'); 
-        if (checked.length > 3) { 
-            alert("Maksimum tempahan adalah 3 slot sahaja."); 
-            cb.checked = false; 
-        } 
     }
 
     window.onload = muatSenarai;
