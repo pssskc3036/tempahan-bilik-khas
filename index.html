@@ -13,17 +13,18 @@
         .header { text-align: center; margin-bottom: 20px; }
         .header img { width: 110px; height: auto; margin-bottom: 15px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
         .header h2 { color: var(--primary); font-size: 1.1rem; margin: 0; font-weight: 800; text-transform: uppercase; }
-        .alert-info { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; padding: 12px; border-radius: 12px; font-size: 0.7rem; font-weight: 700; margin-bottom: 20px; text-align: center; }
+        .alert-info { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; padding: 12px; border-radius: 12px; font-size: 0.7rem; font-weight: 700; margin-bottom: 10px; text-align: center; }
         label { display: block; margin-top: 15px; font-weight: 600; font-size: 0.8rem; color: #64748b; text-transform: uppercase; }
         .auto-day { background: #f1f5f9; padding: 10px; border-radius: 8px; font-weight: 800; color: #2563eb; margin-top: 5px; font-size: 0.9rem; border-left: 4px solid #2563eb; }
         select, input, textarea { width: 100%; padding: 14px; margin-top: 6px; border: 2px solid #e2e8f0; border-radius: 12px; box-sizing: border-box; font-size: 1rem; background: #f8fafc; font-family: inherit; }
         .slot-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
-        .slot-card { background: white; border: 2px solid #e2e8f0; padding: 12px; border-radius: 14px; display: flex; flex-direction: column; cursor: pointer; transition: 0.2s; position: relative; min-height: 85px; }
+        .slot-card { background: white; border: 2px solid #e2e8f0; padding: 12px; border-radius: 14px; display: flex; flex-direction: column; cursor: pointer; transition: 0.2s; position: relative; min-height: 90px; }
         .slot-card.selected { border-color: var(--primary); background: #eff6ff; box-shadow: 0 0 0 1px var(--primary); }
         .slot-card.booked { background: #fff1f2 !important; border-color: #fecdd3 !important; cursor: not-allowed !important; pointer-events: none !important; opacity: 0.8; }
         .slot-time { font-weight: 800; font-size: 0.9rem; color: #334155; }
         .slot-range { font-size: 0.7rem; color: #64748b; }
-        .nilam-tag { font-size: 0.6rem; font-weight: 800; padding: 4px 6px; border-radius: 6px; margin-top: 5px; width: fit-content; display: block; border: 1px solid rgba(0,0,0,0.1); }
+        /* CSS TAGGING NILAM */
+        .nilam-tag { font-size: 0.65rem; font-weight: 800; padding: 4px 6px; border-radius: 6px; margin-top: 5px; width: fit-content; display: block; border: 1px solid rgba(0,0,0,0.1); }
         .nilam-bm { background-color: #dcfce7 !important; color: #166534 !important; }
         .nilam-bi { background-color: #fef9c3 !important; color: #854d0e !important; }
         button#submitBtn { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 16px; margin-top: 25px; cursor: pointer; font-weight: 700; font-size: 1rem; }
@@ -141,10 +142,8 @@
     function getMingguAkademik(tarikhInput) {
         const tkh = new Date(tarikhInput);
         const mulaSekolah = new Date("2026-01-12");
-        const diffInMs = tkh - mulaSekolah;
-        const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
-        if (diffInDays < 0) return 0; 
-        return Math.floor(diffInDays / 7) + 1;
+        const diffInDays = Math.floor((tkh - mulaSekolah) / (1000 * 60 * 60 * 24));
+        return diffInDays < 0 ? 0 : Math.floor(diffInDays / 7) + 1;
     }
 
     async function muatSenarai() {
@@ -175,35 +174,52 @@
         const date = new Date(tarikhVal);
         const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
         const minggu = getMingguAkademik(tarikhVal);
-        const isGanjil = minggu % 2 !== 0;
+        const isGanjil = (minggu % 2 !== 0);
 
         document.getElementById('hariAuto').innerText = `HARI: ${hariMs[dayName] || 'CUTI'} | MINGGU: ${minggu}`;
         
         const container = document.getElementById('slotGrid');
-        const slotDitempah = dataTempahan.filter(t => (t.tarikh.includes('T') ? t.tarikh.split('T')[0] : t.tarikh) === tarikhVal && t.bilik === bilik).flatMap(t => String(t.waktu).split(", "));
+        const slotDitempah = dataTempahan.filter(t => {
+            const tDate = t.tarikh.includes('T') ? t.tarikh.split('T')[0] : t.tarikh;
+            return tDate === tarikhVal && t.bilik === bilik;
+        }).flatMap(t => String(t.waktu).split(", "));
         
         container.innerHTML = "";
         for (let i = 1; i <= 12; i++) {
             const val = `Waktu ${i}`;
             const isBooked = slotDitempah.includes(val);
             
-            // TAGGING NILAM LOGIC
+            // LOGIK TAGGING NILAM
             let tagHTML = "";
             if (bilik === "Makmal Komputer") {
-                if (isGanjil && nilamBM[dayName]?.[i]) tagHTML = `<span class="nilam-tag nilam-bm">NILAM BM (${nilamBM[dayName][i]})</span>`;
-                else if (!isGanjil && nilamBI[dayName]?.[i]) tagHTML = `<span class="nilam-tag nilam-bi">NILAM BI (${nilamBI[dayName][i]})</span>`;
+                if (isGanjil && nilamBM[dayName] && nilamBM[dayName][i]) {
+                    tagHTML = `<span class="nilam-tag nilam-bm">NILAM BM (${nilamBM[dayName][i]})</span>`;
+                } else if (!isGanjil && nilamBI[dayName] && nilamBI[dayName][i]) {
+                    tagHTML = `<span class="nilam-tag nilam-bi">NILAM BI (${nilamBI[dayName][i]})</span>`;
+                }
             } else if (bilik === "Pusat Sumber") {
-                if (isGanjil && nilamBI[dayName]?.[i]) tagHTML = `<span class="nilam-tag nilam-bi">NILAM BI (${nilamBI[dayName][i]})</span>`;
-                else if (!isGanjil && nilamBM[dayName]?.[i]) tagHTML = `<span class="nilam-tag nilam-bm">NILAM BM (${nilamBM[dayName][i]})</span>`;
+                if (isGanjil && nilamBI[dayName] && nilamBI[dayName][i]) {
+                    tagHTML = `<span class="nilam-tag nilam-bi">NILAM BI (${nilamBI[dayName][i]})</span>`;
+                } else if (!isGanjil && nilamBM[dayName] && nilamBM[dayName][i]) {
+                    tagHTML = `<span class="nilam-tag nilam-bm">NILAM BM (${nilamBM[dayName][i]})</span>`;
+                }
             }
 
             const div = document.createElement('div');
             div.className = `slot-card ${isBooked ? 'booked' : ''}`;
-            div.innerHTML = `<span class="slot-time">${val}</span><span class="slot-range">${jadualMasa[i]}</span>${tagHTML}${isBooked ? '<br><b style="color:#be123c;font-size:0.65rem;">DITEMPAH</b>' : ''}`;
+            div.innerHTML = `
+                <span class="slot-time">${val}</span>
+                <span class="slot-range">${jadualMasa[i]}</span>
+                ${tagHTML}
+                ${isBooked ? '<br><b style="color:#be123c;font-size:0.65rem;">DITEMPAH</b>' : ''}
+            `;
             
             if(!isBooked) {
                 div.onclick = () => {
-                    if (!div.classList.contains('selected') && container.querySelectorAll('.selected').length >= 3) { alert("Maksimum 3 slot!"); return; }
+                    if (!div.classList.contains('selected') && container.querySelectorAll('.selected').length >= 3) { 
+                        alert("Maksimum 3 slot sahaja!"); 
+                        return; 
+                    }
                     div.classList.toggle('selected');
                 };
             }
@@ -234,18 +250,18 @@
             location.reload();
         } catch (e) {
             alert("Ralat!");
-            btn.disabled = false;
+            btn.disabled = false; btn.innerText = "HANTAR TEMPAHAN";
         }
     }
 
     async function batalTempahan(idx) {
         const pass = prompt("Sila masukkan Kata Laluan Admin:");
         if (pass === KATA_LALUAN_ADMIN) {
-            if(confirm("Batal tempahan ini?")){
+            if(confirm("Adakah anda pasti mahu membatalkan tempahan ini?")){
                 await fetch(`${scriptURL}?action=delete&row=${idx + 2}`, { method: 'POST', mode: 'no-cors' });
                 location.reload();
             }
-        } else if (pass !== null) { alert("SALAH!"); }
+        } else if (pass !== null) { alert("Kata Laluan Salah!"); }
     }
     window.onload = muatSenarai;
 </script>
