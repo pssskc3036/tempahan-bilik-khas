@@ -1,1 +1,293 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SISTEM TEMPAHAN BILIK KHAS SK CLIFFORD</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --accent: #3b82f6;
+            --bg: #f1f5f9;
+            --card: #ffffff;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            padding: 20px; 
+            background-color: var(--bg); 
+            margin: 0;
+            color: #1e293b;
+        }
+
+        .container { 
+            max-width: 500px; 
+            margin: auto; 
+        }
+
+        .card { 
+            background: var(--card); 
+            padding: 30px; 
+            border-radius: 24px; 
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.05);
+            border: 1px solid rgba(255,255,255,0.7);
+        }
+
+        .header { text-align: center; margin-bottom: 30px; }
+        .header img { width: 100px; height: auto; margin-bottom: 15px; }
+        .header h2 { 
+            color: var(--primary); 
+            font-size: 1.15rem; 
+            margin: 0; 
+            font-weight: 800;
+            line-height: 1.4;
+            text-transform: uppercase;
+        }
+
+        label { display: block; margin-top: 20px; font-weight: 600; font-size: 0.8rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.025em; }
+        
+        select, input[type="text"], input[type="date"] { 
+            width: 100%; padding: 14px; margin-top: 6px; 
+            border: 2px solid #e2e8f0; border-radius: 12px; 
+            box-sizing: border-box; font-size: 1rem;
+            background: #f8fafc; transition: all 0.2s;
+        }
+        select:focus, input:focus { border-color: var(--primary); outline: none; background: white; }
+
+        /* UI SLOT WAKTU YANG CANGGIH */
+        .slot-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
+        .slot-card { 
+            background: white; border: 2px solid #e2e8f0; padding: 12px; border-radius: 14px; 
+            display: flex; flex-direction: column; cursor: pointer; transition: 0.2s;
+            position: relative;
+        }
+        .slot-card:hover:not(.booked) { border-color: var(--accent); background: #f0f7ff; }
+        .slot-card.selected { border-color: var(--primary); background: #eff6ff; box-shadow: 0 0 0 1px var(--primary); }
+        .slot-card.booked { background: #fff1f2; border-color: #fecdd3; cursor: not-allowed; opacity: 0.7; }
+        .slot-card input { display: none; }
+        
+        .slot-time { font-weight: 800; font-size: 0.9rem; color: #334155; }
+        .slot-range { font-size: 0.75rem; color: #64748b; }
+        .status-tag { color: #e11d48; font-size: 0.65rem; font-weight: 800; margin-top: 4px; }
+
+        button#submitBtn { 
+            width: 100%; padding: 16px; background: var(--primary); color: white; border: none; 
+            border-radius: 16px; margin-top: 30px; cursor: pointer; font-weight: 700; font-size: 1rem;
+            transition: 0.3s; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+        }
+        button#submitBtn:hover { background: #1d4ed8; transform: translateY(-1px); }
+
+        /* LIST SECTION MODEN */
+        .list-section { margin-top: 40px; }
+        .list-title { font-weight: 800; color: #475569; margin-bottom: 20px; text-align: center; font-size: 0.85rem; text-transform: uppercase; }
+        .booking-item { 
+            background: white; border-radius: 18px; padding: 16px; margin-bottom: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #f1f5f9;
+        }
+        .b-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .b-date { font-weight: 800; color: #e11d48; font-size: 0.85rem; }
+        .b-bilik { font-weight: 700; color: var(--primary); font-size: 0.75rem; background: #eff6ff; padding: 4px 10px; border-radius: 20px; }
+        .b-guru { font-weight: 600; font-size: 0.95rem; margin-bottom: 4px; }
+        .b-waktu { color: #64748b; font-size: 0.75rem; display: flex; align-items: center; gap: 5px; }
+        
+        .btn-delete { 
+            background: #fff1f2 !important; color: #e11d48 !important; border: none !important;
+            padding: 8px 14px !important; font-size: 0.7rem !important; border-radius: 10px !important; 
+            font-weight: 700 !important; cursor: pointer; margin-top: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <div class="header">
+            <img src="https://lh3.googleusercontent.com/d/1jvQNnrcg0lnnOIX4kh4MChC1M4rYbyGg" alt="Logo SK Clifford">
+            <h2>BORANG TEMPAHAN BILIK KHAS<br>SK CLIFFORD 2026</h2>
+        </div>
+        
+        <form id="tempahanForm">
+            <label>Nama Guru</label>
+            <select id="namaGuru" required>
+                <option value="">-- Sila Pilih Nama --</option>
+                <option value="ROHADI BIN KAMALUDIN">ROHADI BIN KAMALUDIN</option>
+                <option value="LUKMAN HAKIM BIN ABDULLAH">LUKMAN HAKIM BIN ABDULLAH</option>
+                <option value="JAMILAH BINTI LUDIN">JAMILAH BINTI LUDIN</option>
+                <option value="NOR JULIANI BINTI OTHMAN">NOR JULIANI BINTI OTHMAN</option>
+                <option value="AZMEER FIRDAUS BIN ISKANDAR">AZMEER FIRDAUS BIN ISKANDAR</option>
+                <option value="DG. ZAHARAH BINTI JAAFAR">DG. ZAHARAH BINTI JAAFAR</option>
+                <option value="DORA BINTI SAAT">DORA BINTI SAAT</option>
+                <option value="FATIMAH BINTI DOLLAH">FATIMAH BINTI DOLLAH</option>
+                <option value="FILZAH HANANI BINTI MUHAMAD">FILZAH HANANI BINTI MUHAMAD</option>
+                <option value="HELDA BINTI ABD MOEN">HELDA BINTI ABD MOEN</option>
+                <option value="IRDAWATY BINTI MOHD BOKHARI">IRDAWATY BINTI MOHD BOKHARI</option>
+                <option value="JAFNI BIN ABU BAKAR">JAFNI BIN ABU BAKAR</option>
+                <option value="JUNAIDAH BINTI ABDUL LANI">JUNAIDAH BINTI ABDUL LANI</option>
+                <option value="KHUSAINI BIN MD YUSOFF">KHUSAINI BIN MD YUSOFF</option>
+                <option value="MAIZATUL ULLAYA BINTI YUSOP@OTHMAN">MAIZATUL ULLAYA BINTI YUSOP@OTHMAN</option>
+                <option value="MARSITAH BINTI IBRAHIM">MARSITAH BINTI IBRAHIM</option>
+                <option value="MOHAMMAD SAFWAN BIN NORAZAMI">MOHAMMAD SAFWAN BIN NORAZAMI</option>
+                <option value="MOHD AMRAN BIN MOHD ZAWAWI">MOHD AMRAN BIN MOHD ZAWAWI</option>
+                <option value="MOHD FIRDAUS BIN AB GHANI">MOHD FIRDAUS BIN AB GHANI</option>
+                <option value="MUHAMAD SHUKRAN BIN ABU BAKAR">MUHAMAD SHUKRAN BIN ABU BAKAR</option>
+                <option value="NAZURAH BINTI KASMIAN">NAZURAH BINTI KASMIAN</option>
+                <option value="NOR DIANA BINTI AB GHANI">NOR DIANA BINTI AB GHANI</option>
+                <option value="NOR ZAILIKA BINTI ZAINAL">NOR ZAILIKA BINTI ZAINAL</option>
+                <option value="NURZALINA BINTI RAMLI">NURZALINA BINTI RAMLI</option>
+                <option value="NORAZIAN BINTI DAUT">NORAZIAN BINTI DAUT</option>
+                <option value="NORFILAH BINTI SABUDIN">NORFILAH BINTI SABUDIN</option>
+                <option value="NORHAYATI BINTI SHARIF HASSAN">NORHAYATI BINTI SHARIF HASSAN</option>
+                <option value="NORLAILA BINTI MOHAMED AMIN">NORLAILA BINTI MOHAMED AMIN</option>
+                <option value="NURUL HAFIZAH BINTI AHMAD">NURUL HAFIZAH BINTI AHMAD</option>
+                <option value="NURUL SYAZWANI BINTI ABIDIN">NURUL SYAZWANI BINTI ABIDIN</option>
+                <option value="RAWAIDA BINTI MOHD BAHARIN">RAWAIDA BINTI MOHD BAHARIN</option>
+                <option value="ROHANA BINTI ESA">ROHANA BINTI ESA</option>
+                <option value="ROZIHAN BINTI MOHD AKIL">ROZIHAN BINTI MOHD AKIL</option>
+                <option value="SHUHAIDA BINTI IBRAHIM">SHUHAIDA BINTI IBRAHIM</option>
+                <option value="SITI SAPINAH BINTI AWANG">SITI SAPINAH BINTI AWANG</option>
+                <option value="SITI ZANARIAH BT MOHAMED">SITI ZANARIAH BT MOHAMED</option>
+                <option value="SHARIFAH HALIMATUN SYAKDIAH BINTI SYED ABDULLAH">SHARIFAH HALIMATUN SYAKDIAH BINTI SYED ABDULLAH</option>
+                <option value="T.YUSNOR BIN T. YUSOF">T.YUSNOR BIN T. YUSOF</option>
+                <option value="WAN KAMARUL FARIZA BT WAN KAMARUZAMAN">WAN KAMARUL FARIZA BT WAN KAMARUZAMAN</option>
+                <option value="YUSRA NABILAH BINTI YUSOFF">YUSRA NABILAH BINTI YUSOFF</option>
+                <option value="ZANOORFADILLAH BT ISMAIL">ZANOORFADILLAH BT ISMAIL</option>
+                <option value="ZUBAIDAH BINTI ABD RAHMAN">ZUBAIDAH BINTI ABD RAHMAN</option>
+                <option value="ZULAZHA BIN AB KADIR">ZULAZHA BIN AB KADIR</option>
+            </select>
+            
+            <label>Bilik Yang Ingin Digunakan</label>
+            <select id="bilik" onchange="kemaskiniSlot()" required>
+                <option value="">-- Pilih Lokasi --</option>
+                <option value="Makmal Komputer">Makmal Komputer</option>
+                <option value="Pusat Sumber">Pusat Sumber (PSS)</option>
+                <option value="Studio CliPS Channel">Studio CliPS Channel</option>
+            </select>
+
+            <label>Tarikh Penggunaan</label>
+            <input type="date" id="tarikh" onchange="kemaskiniSlot()" required>
+            
+            <div id="slotGrid" class="slot-grid"></div>
+            
+            <label>Tujuan / Kelas</label>
+            <input type="text" id="tujuan" placeholder="Cth: PdPC Sains 5 Kenanga" required>
+            
+            <button type="button" id="submitBtn" onclick="hantar()">HANTAR TEMPAHAN SEKARANG</button>
+        </form>
+
+        <div class="list-section">
+            <div class="list-title">📋 Rekod Tempahan Terkini</div>
+            <div id="senaraiTempahan">
+                <p style="text-align:center; font-size:12px; color:#94a3b8;">Memuatkan data rekod...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycby_QiB1E0U5chktoZWBpEKPrizuNDCGh9mORJGWdC8rwbzWJnOvDG3TCvnr8H5OIwz2wg/exec';
+    let dataTempahan = [];
+
+    const jadualMasa = { 1: "07:35-08:05", 2: "08:05-08:35", 3: "08:35-09:05", 4: "09:05-09:35", 5: "09:35-10:05", 6: "10:05-10:35", 7: "10:35-11:05", 8: "11:05-11:35", 9: "11:35-12:05", 10: "12:05-12:35", 11: "12:35-01:05", 12: "01:05-01:35" };
+
+    function formatTarikhHari(tarikhStr) {
+        if (!tarikhStr) return "";
+        let d = new Date(tarikhStr);
+        const hariNama = ["Ahad","Isnin","Selasa","Rabu","Khamis","Jumaat","Sabtu"][d.getDay()];
+        return `${hariNama}, ${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+    }
+
+    function huraikanWaktu(waktuStr) {
+        if (!waktuStr) return "";
+        return waktuStr.split(", ").map(w => jadualMasa[w.replace("Waktu ", "")] || w).join(" | ");
+    }
+
+    async function muatSenarai() {
+        try {
+            const res = await fetch(scriptURL + "?action=read");
+            dataTempahan = await res.json();
+            const div = document.getElementById('senaraiTempahan');
+            div.innerHTML = "";
+            if (dataTempahan.length === 0) { div.innerHTML = "<p style='text-align:center; font-size:12px;'>Tiada rekod buat masa ini.</p>"; return; }
+            
+            dataTempahan.slice().reverse().forEach((item, index) => {
+                const realIndex = dataTempahan.length - 1 - index;
+                div.innerHTML += `
+                    <div class="booking-item">
+                        <div class="b-top">
+                            <span class="b-date">${formatTarikhHari(item.tarikh)}</span>
+                            <span class="b-bilik">${item.bilik}</span>
+                        </div>
+                        <div class="b-guru">${item.nama}</div>
+                        <div style="font-size:0.8rem; color:#64748b; margin:4px 0;">${item.tujuan || "-"}</div>
+                        <div class="b-waktu">🕒 ${huraikanWaktu(item.waktu)}</div>
+                        <button class="btn-delete" onclick="batalTempahan(${realIndex})">BATAL TEMPAHAN</button>
+                    </div>`;
+            });
+        } catch (e) { console.error(e); }
+    }
+
+    async function batalTempahan(rowIdx) {
+        const password = prompt("Sila masukkan kata laluan ADMIN:");
+        if (password === "admin2026") {
+            if (confirm("Padam tempahan ini secara kekal?")) {
+                await fetch(`${scriptURL}?action=delete&row=${rowIdx + 2}`, { method: 'POST', mode: 'no-cors' });
+                alert("Berjaya dipadam!");
+                location.reload();
+            }
+        }
+    }
+
+    function hantar() {
+        const checked = document.querySelectorAll('input[name="sw"]:checked');
+        if (checked.length < 1) { alert("Sila pilih sekurang-kurangnya satu slot waktu!"); return; }
+        const btn = document.getElementById('submitBtn');
+        const payload = { 
+            nama: document.getElementById('namaGuru').value, 
+            bilik: document.getElementById('bilik').value, 
+            tarikh: document.getElementById('tarikh').value, 
+            tujuan: document.getElementById('tujuan').value, 
+            waktu: Array.from(checked).map(c => c.value).join(", ") 
+        };
+        btn.disabled = true; btn.innerText = "Sedang diproses...";
+        fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
+        .then(() => { alert("Tempahan telah berjaya direkodkan!"); location.reload(); });
+    }
+
+    async function kemaskiniSlot() {
+        const bilik = document.getElementById('bilik').value;
+        const tarikh = document.getElementById('tarikh').value;
+        const container = document.getElementById('slotGrid');
+        if (!bilik || !tarikh) { container.innerHTML = ""; return; }
+        
+        const tempahanSediaAda = dataTempahan.filter(t => t.tarikh.includes(tarikh) && t.bilik === bilik);
+        const slotDitempah = tempahanSediaAda.flatMap(t => String(t.waktu).split(", "));
+        
+        container.innerHTML = "";
+        for (let i = 1; i <= 12; i++) {
+            const val = `Waktu ${i}`;
+            const isBooked = slotDitempah.includes(val);
+            const div = document.createElement('div');
+            div.className = `slot-card ${isBooked ? 'booked' : ''}`;
+            div.innerHTML = `
+                <input type="checkbox" name="sw" value="${val}" ${isBooked ? 'disabled' : ''}>
+                <span class="slot-time">Waktu ${i}</span>
+                <span class="slot-range">${jadualMasa[i]}</span>
+                ${isBooked ? '<span class="status-tag">DITEMPAH</span>' : ''}
+            `;
+            if(!isBooked) {
+                div.onclick = () => {
+                    const input = div.querySelector('input');
+                    input.checked = !input.checked;
+                    div.classList.toggle('selected', input.checked);
+                };
+            }
+            container.appendChild(div);
+        }
+    }
+
+    window.onload = muatSenarai;
+</script>
+</body>
+</html>
 
