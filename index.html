@@ -18,9 +18,9 @@
         .auto-day { background: #f1f5f9; padding: 10px; border-radius: 8px; font-weight: 800; color: #2563eb; margin-top: 5px; font-size: 0.9rem; border-left: 4px solid #2563eb; }
         select, input, textarea { width: 100%; padding: 14px; margin-top: 6px; border: 2px solid #e2e8f0; border-radius: 12px; box-sizing: border-box; font-size: 1rem; background: #f8fafc; font-family: inherit; }
         .slot-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
-        .slot-card { background: white; border: 2px solid #e2e8f0; padding: 12px; border-radius: 14px; display: flex; flex-direction: column; cursor: pointer; transition: 0.2s; }
+        .slot-card { background: white; border: 2px solid #e2e8f0; padding: 12px; border-radius: 14px; display: flex; flex-direction: column; cursor: pointer; transition: 0.2s; position: relative; }
         .slot-card.selected { border-color: var(--primary); background: #eff6ff; box-shadow: 0 0 0 1px var(--primary); }
-        .slot-card.booked { background: #fff1f2; border-color: #fecdd3; cursor: not-allowed; opacity: 0.7; }
+        .slot-card.booked { background: #fff1f2 !important; border-color: #fecdd3 !important; cursor: not-allowed !important; opacity: 0.8; pointer-events: none; }
         .slot-time { font-weight: 800; font-size: 0.9rem; color: #334155; }
         .slot-range { font-size: 0.7rem; color: #64748b; }
         .nilam-tag { font-size: 0.55rem; font-weight: 800; padding: 3px 6px; border-radius: 6px; margin-top: 6px; width: fit-content; line-height: 1.2; }
@@ -38,7 +38,7 @@
             <img src="https://upload.wikimedia.org/wikipedia/ms/3/3d/Logo_SK_Clifford.png" alt="Logo SK Clifford">
             <h2>SISTEM TEMPAHAN BILIK KHAS SK CLIFFORD 2026</h2>
         </div>
-        <div class="alert-info">⚠️ MAKSIMUM 3 SLOT | PENGGILIRAN NILAM AUTOMATIK</div>
+        <div class="alert-info">⚠️ MAKSIMUM 3 SLOT | SISTEM SEKAT TEMPAHAN BERTINDIH</div>
         <form id="tempahanForm">
             <label>Nama Guru</label>
             <select id="namaGuru" required>
@@ -113,7 +113,6 @@
     const jadualMasa = { 1: "07:35", 2: "08:05", 3: "08:35", 4: "09:05", 5: "09:35", 6: "10:05", 7: "10:35", 8: "11:05", 9: "11:35", 10: "12:05", 11: "12:35", 12: "01:05" };
     const hariMs = { 'Monday': 'ISNIN', 'Tuesday': 'SELASA', 'Wednesday': 'RABU', 'Thursday': 'KHAMIS', 'Friday': 'JUMAAT', 'Saturday': 'SABTU', 'Sunday': 'AHAD' };
     
-    // Data NILAM dari jadual yang dibekalkan (Cek mengikut hari/waktu)
     const nilamFull = {
         'Monday': { bm: { 5:'3A', 6:'3A', 7:'1A', 8:'1A', 10:'4A', 11:'4A' }, bi: { 4:'5K', 5:'5K', 8:'2E', 9:'2E', 10:'2A', 11:'2A' } },
         'Tuesday': { bm: { 1:'6E', 2:'6E', 6:'4K', 7:'4K', 9:'6K', 10:'6K', 11:'6A', 12:'6A' }, bi: { 2:'4K', 3:'4K', 5:'1A', 6:'1A', 7:'6K', 8:'6K', 10:'3E', 11:'3E' } },
@@ -168,13 +167,21 @@
         if (!bilik) return;
         const weekNum = getWeekNumber(date);
         const isGanjil = weekNum % 2 !== 0;
-        const slotDitempah = dataTempahan.filter(t => t.tarikh.includes(tarikhVal) && t.bilik === bilik).flatMap(t => String(t.waktu).split(", "));
+
+        // Ambil senarai waktu yang telah ditempah untuk tarikh dan bilik terpilih
+        const slotDitempah = dataTempahan
+            .filter(t => {
+                let dStr = t.tarikh.includes('T') ? t.tarikh.split('T')[0] : t.tarikh;
+                return dStr === tarikhVal && t.bilik === bilik;
+            })
+            .flatMap(t => String(t.waktu).split(", "));
         
         container.innerHTML = "";
         for (let i = 1; i <= 12; i++) {
             const val = `Waktu ${i}`;
             const isBooked = slotDitempah.includes(val);
             let tagHTML = "";
+            
             if (bilik === "Makmal Komputer") {
                 if (isGanjil && nilamFull[dayName]?.bm[i]) tagHTML = `<span class="nilam-tag nilam-bm">NILAM BM (${nilamFull[dayName].bm[i]})</span>`;
                 else if (!isGanjil && nilamFull[dayName]?.bi[i]) tagHTML = `<span class="nilam-tag nilam-bi">NILAM BI (${nilamFull[dayName].bi[i]})</span>`;
@@ -182,13 +189,20 @@
                 if (isGanjil && nilamFull[dayName]?.bi[i]) tagHTML = `<span class="nilam-tag nilam-bi">NILAM BI (${nilamFull[dayName].bi[i]})</span>`;
                 else if (!isGanjil && nilamFull[dayName]?.bm[i]) tagHTML = `<span class="nilam-tag nilam-bm">NILAM BM (${nilamFull[dayName].bm[i]})</span>`;
             }
+
             const div = document.createElement('div');
             div.className = `slot-card ${isBooked ? 'booked' : ''}`;
-            div.innerHTML = `<span class="slot-time">Waktu ${i}</span><span class="slot-range">${jadualMasa[i]}</span>${tagHTML}${isBooked ? '<br><span style="color:red;font-size:0.6rem;font-weight:bold;">DITEMPAH</span>' : ''}`;
+            div.innerHTML = `
+                <span class="slot-time">Waktu ${i}</span>
+                <span class="slot-range">${jadualMasa[i]}</span>
+                ${tagHTML}
+                ${isBooked ? '<br><span style="color:#be123c;font-size:0.6rem;font-weight:900;">DITEMPAH (LOCKED)</span>' : ''}
+            `;
+            
             if(!isBooked) {
                 div.onclick = () => {
                     const selected = container.querySelectorAll('.selected').length;
-                    if (!div.classList.contains('selected') && selected >= 3) { alert("Maksimum 3 slot!"); return; }
+                    if (!div.classList.contains('selected') && selected >= 3) { alert("Maksimum 3 slot sahaja!"); return; }
                     div.classList.toggle('selected');
                 };
             }
@@ -199,24 +213,48 @@
     function hantar() {
         const selected = Array.from(document.querySelectorAll('.slot-card.selected .slot-time')).map(el => el.innerText);
         const tujuan = document.getElementById('tujuan').value.trim();
-        if (selected.length === 0 || tujuan === "") { alert("Pilih slot dan isi Tujuan!"); return; }
+        const nama = document.getElementById('namaGuru').value;
+        const bilik = document.getElementById('bilik').value;
+        const tarikh = document.getElementById('tarikh').value;
+
+        if (!nama || !bilik || !tarikh || selected.length === 0 || tujuan === "") { 
+            alert("Sila lengkapkan semua maklumat dan pilih slot waktu!"); 
+            return; 
+        }
+
         const btn = document.getElementById('submitBtn');
-        btn.disabled = true; btn.innerText = "Hantar...";
+        btn.disabled = true; btn.innerText = "Menghantar...";
+
         const payload = { 
-            nama: document.getElementById('namaGuru').value, 
-            bilik: document.getElementById('bilik').value, 
-            tarikh: document.getElementById('tarikh').value, 
+            nama: nama, 
+            bilik: bilik, 
+            tarikh: tarikh, 
             tujuan: tujuan, 
             waktu: selected.join(", "), 
             catatan: document.getElementById('catatan').value 
         };
-        fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) }).then(() => location.reload());
+
+        fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
+        .then(() => {
+            alert("Tempahan Berjaya Disimpan!");
+            location.reload();
+        })
+        .catch(() => {
+            alert("Ralat berlaku. Sila cuba lagi.");
+            btn.disabled = false; btn.innerText = "HANTAR TEMPAHAN";
+        });
     }
 
     async function batalTempahan(idx) {
-        if (prompt("Masukkan Kata Laluan Admin:") === "admin2026") {
-            await fetch(`${scriptURL}?action=delete&row=${idx + 2}`, { method: 'POST', mode: 'no-cors' });
-            location.reload();
+        const pw = prompt("Masukkan Kata Laluan Admin untuk Membatalkan:");
+        if (pw === "admin2026") {
+            if(confirm("Padam tempahan ini secara kekal? Slot akan dibuka semula untuk guru lain.")) {
+                await fetch(`${scriptURL}?action=delete&row=${idx + 2}`, { method: 'POST', mode: 'no-cors' });
+                alert("Tempahan dibatalkan. Slot kini kosong.");
+                location.reload();
+            }
+        } else if (pw !== null) { 
+            alert("Kata laluan salah!"); 
         }
     }
     window.onload = muatSenarai;
