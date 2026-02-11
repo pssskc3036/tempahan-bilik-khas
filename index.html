@@ -38,7 +38,7 @@
             <img src="https://upload.wikimedia.org/wikipedia/ms/3/3d/Logo_SK_Clifford.png" alt="Logo SK Clifford">
             <h2>SISTEM TEMPAHAN BILIK KHAS SK CLIFFORD 2026</h2>
         </div>
-        <div class="alert-info">⚠️ MAKSIMUM 3 SLOT | SISTEM SEKAT TEMPAHAN BERTINDIH</div>
+        <div class="alert-info">⚠️ MAKSIMUM 3 SLOT | SEKATAN TEMPAHAN BERTINDIH DIAKTIFKAN</div>
         <form id="tempahanForm">
             <label>Nama Guru</label>
             <select id="namaGuru" required>
@@ -152,6 +152,7 @@
                     <button class="btn-delete" onclick="batalTempahan(${realIdx})">BATAL TEMPAHAN</button>
                 </div>`;
             });
+            if(document.getElementById('bilik').value) kemaskiniSlot(); // Refresh grid jika sedang dibuka
         } catch (e) {}
     }
 
@@ -168,7 +169,6 @@
         const weekNum = getWeekNumber(date);
         const isGanjil = weekNum % 2 !== 0;
 
-        // Ambil senarai waktu yang telah ditempah untuk tarikh dan bilik terpilih
         const slotDitempah = dataTempahan
             .filter(t => {
                 let dStr = t.tarikh.includes('T') ? t.tarikh.split('T')[0] : t.tarikh;
@@ -192,12 +192,7 @@
 
             const div = document.createElement('div');
             div.className = `slot-card ${isBooked ? 'booked' : ''}`;
-            div.innerHTML = `
-                <span class="slot-time">Waktu ${i}</span>
-                <span class="slot-range">${jadualMasa[i]}</span>
-                ${tagHTML}
-                ${isBooked ? '<br><span style="color:#be123c;font-size:0.6rem;font-weight:900;">DITEMPAH (LOCKED)</span>' : ''}
-            `;
+            div.innerHTML = `<span class="slot-time">${val}</span><span class="slot-range">${jadualMasa[i]}</span>${tagHTML}${isBooked ? '<br><b style="color:#be123c;font-size:0.6rem;">DITEMPAH</b>' : ''}`;
             
             if(!isBooked) {
                 div.onclick = () => {
@@ -210,54 +205,57 @@
         }
     }
 
-    function hantar() {
+    async function hantar() {
         const selected = Array.from(document.querySelectorAll('.slot-card.selected .slot-time')).map(el => el.innerText);
-        const tujuan = document.getElementById('tujuan').value.trim();
         const nama = document.getElementById('namaGuru').value;
         const bilik = document.getElementById('bilik').value;
         const tarikh = document.getElementById('tarikh').value;
+        const tujuan = document.getElementById('tujuan').value.trim();
 
         if (!nama || !bilik || !tarikh || selected.length === 0 || tujuan === "") { 
-            alert("Sila lengkapkan semua maklumat dan pilih slot waktu!"); 
-            return; 
+            alert("Sila lengkapkan semua maklumat!"); return; 
         }
 
         const btn = document.getElementById('submitBtn');
-        btn.disabled = true; btn.innerText = "Menghantar...";
+        btn.disabled = true; btn.innerText = "Semakan Slot...";
 
-        const payload = { 
-            nama: nama, 
-            bilik: bilik, 
-            tarikh: tarikh, 
-            tujuan: tujuan, 
-            waktu: selected.join(", "), 
-            catatan: document.getElementById('catatan').value 
-        };
+        // --- PROTECTION: Semakan saat akhir sebelum hantar ---
+        try {
+            const res = await fetch(scriptURL + "?action=read");
+            const latestData = await res.json();
+            const clash = latestData.filter(t => {
+                let dStr = t.tarikh.includes('T') ? t.tarikh.split('T')[0] : t.tarikh;
+                return dStr === tarikh && t.bilik === bilik;
+            }).flatMap(t => String(t.waktu).split(", "));
+
+            const isClash = selected.some(s => clash.includes(s));
+            if (isClash) {
+                alert("MAAF! Slot ini baru sahaja diambil oleh guru lain. Sila pilih waktu lain.");
+                muatSenarai(); // Refresh data
+                btn.disabled = false; btn.innerText = "HANTAR TEMPAHAN";
+                return;
+            }
+        } catch (e) {}
+
+        btn.innerText = "Menghantar...";
+        const payload = { nama, bilik, tarikh, tujuan, waktu: selected.join(", "), catatan: document.getElementById('catatan').value };
 
         fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
         .then(() => {
-            alert("Tempahan Berjaya Disimpan!");
+            alert("Tempahan Berjaya!");
             location.reload();
-        })
-        .catch(() => {
-            alert("Ralat berlaku. Sila cuba lagi.");
-            btn.disabled = false; btn.innerText = "HANTAR TEMPAHAN";
         });
     }
 
     async function batalTempahan(idx) {
-        const pw = prompt("Masukkan Kata Laluan Admin untuk Membatalkan:");
+        const pw = prompt("Masukkan Kata Laluan Admin:");
         if (pw === "admin2026") {
-            if(confirm("Padam tempahan ini secara kekal? Slot akan dibuka semula untuk guru lain.")) {
-                await fetch(`${scriptURL}?action=delete&row=${idx + 2}`, { method: 'POST', mode: 'no-cors' });
-                alert("Tempahan dibatalkan. Slot kini kosong.");
-                location.reload();
-            }
-        } else if (pw !== null) { 
-            alert("Kata laluan salah!"); 
-        }
+            await fetch(`${scriptURL}?action=delete&row=${idx + 2}`, { method: 'POST', mode: 'no-cors' });
+            location.reload();
+        } else if (pw !== null) alert("Salah!");
     }
     window.onload = muatSenarai;
+    setInterval(muatSenarai, 30000); // Auto-refresh data setiap 30 saat untuk elak clash
 </script>
 </body>
 </html>
