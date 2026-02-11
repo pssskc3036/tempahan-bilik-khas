@@ -1,20 +1,3 @@
-Baik Cikgu, saya permudahkan. Kita fokus pada GitHub sahaja dahulu sebab di situ puncanya masalah tarikh dan butang batal tak muncul.
-
-Sila ikut langkah ini satu persatu:
-
-Langkah 1: Buka GitHub (Tempat Ganti Kod)
-Buka repository cikgu di GitHub: pssskc3036/tempahan-bilik-khas.
-
-Klik pada fail bernama index.html.
-
-Klik ikon Pensel (Edit this file).
-
-Padam semua kod yang ada di dalam kotak tersebut sampai kosong.
-
-Salin (Copy) semua kod di bawah ini dan Tampal (Paste) ke dalam kotak yang kosong tadi.
-
-Langkah 2: Kod Penuh Untuk GitHub (index.html)
-HTML
 <!DOCTYPE html>
 <html lang="ms">
 <head>
@@ -24,7 +7,9 @@ HTML
     <style>
         body { font-family: 'Segoe UI', sans-serif; padding: 15px; background: #f0f2f5; }
         .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 550px; margin: auto; }
-        h2 { text-align: center; color: #1a73e8; font-size: 1.2em; text-transform: uppercase; margin-bottom: 20px; line-height: 1.4; }
+        .logo-container { text-align: center; margin-bottom: 10px; }
+        .logo-container img { width: 120px; height: auto; }
+        h2 { text-align: center; color: #1a73e8; font-size: 1.1em; text-transform: uppercase; margin-bottom: 20px; line-height: 1.4; border-top: 2px solid #eee; pt: 15px; }
         label { display: block; margin-top: 15px; font-weight: bold; font-size: 13px; color: #444; }
         select, input[type="text"], input[type="date"] { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #dadce0; border-radius: 8px; box-sizing: border-box; }
         .slot-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
@@ -36,7 +21,6 @@ HTML
         .booked-tag { color: #d93025; font-size: 10px; font-weight: bold; margin-top: 5px; display: block; }
         button { width: 100%; padding: 15px; background: #1a73e8; color: white; border: none; border-radius: 8px; margin-top: 25px; cursor: pointer; font-weight: bold; font-size: 16px; }
         
-        /* GAYA SENARAI & BUTANG BATAL */
         .list-section { margin-top: 30px; border-top: 3px solid #1a73e8; padding-top: 20px; }
         .list-title { font-weight: bold; color: #1a73e8; margin-bottom: 15px; text-align: center; font-size: 14px; }
         .tempahan-item { background: #fff; border-left: 5px solid #1a73e8; padding: 15px; border-radius: 8px; margin-bottom: 15px; font-size: 13px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); position: relative; }
@@ -44,22 +28,18 @@ HTML
         .t-date { font-weight: bold; color: #d93025; font-size: 14px; display: block; }
         .t-bilik { font-weight: bold; color: #1a73e8; }
         .t-waktu { color: #555; font-size: 12px; background: #f1f3f4; padding: 4px 8px; border-radius: 4px; margin-top: 5px; display: inline-block; }
-        
-        .btn-batal { 
-            background: #ff4d4d !important; 
-            color: white !important; 
-            padding: 8px 12px !important; 
-            font-size: 11px !important; 
-            width: auto !important; 
-            margin-top: 10px !important;
-            display: inline-block !important;
-        }
+        .btn-batal { background: #ff4d4d !important; color: white !important; padding: 8px 12px !important; font-size: 11px !important; width: auto !important; margin-top: 10px !important; display: inline-block !important; }
     </style>
 </head>
 <body>
 
 <div class="card">
+    <div class="logo-container">
+        <img src="https://lh3.googleusercontent.com/u/0/d/1jvQNnrcg0lnnOIX4kh4MChC1M4rYbyGg" alt="Logo SK Clifford">
+    </div>
+
     <h2>BORANG TEMPAHAN BILIK KHAS<br>SK CLIFFORD 2026</h2>
+    
     <form id="tempahanForm">
         <label>Nama Guru:</label>
         <select id="namaGuru" required>
@@ -108,6 +88,7 @@ HTML
             <option value="ZUBAIDAH BINTI ABD RAHMAN">ZUBAIDAH BINTI ABD RAHMAN</option>
             <option value="ZULAZHA BIN AB KADIR">ZULAZHA BIN AB KADIR</option>
         </select>
+        
         <label>Pilih Bilik:</label>
         <select id="bilik" onchange="kemaskiniSlot()" required>
             <option value="">-- Pilih Bilik --</option>
@@ -115,9 +96,11 @@ HTML
             <option value="Pusat Sumber">Pusat Sumber (PSS)</option>
             <option value="Studio CliPS Channel">Studio CliPS Channel</option>
         </select>
+
         <label>Tarikh Penggunaan:</label>
         <input type="date" id="tarikh" onchange="kemaskiniSlot()" required>
         <div id="slotGrid" class="slot-container"></div>
+        
         <label>Tujuan / Kelas:</label>
         <input type="text" id="tujuan" placeholder="Cth: PdPC Sains 5K" required>
         <button type="button" id="submitBtn" onclick="hantar()">HANTAR TEMPAHAN</button>
