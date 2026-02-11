@@ -99,8 +99,10 @@
                 <option value="Studio CliPS Channel">Studio CliPS Channel</option>
             </select>
             <div id="slotGrid" class="slot-grid"></div>
+            
             <label>Tujuan / Kelas (WAJIB)</label>
-            <input type="text" id="tujuan" placeholder="Cth: PdPC Sains 5K / NILAM" required>
+            <input type="text" id="tujuan" placeholder="Cth: PdPC Sains 5K / NILAM" required oninvalid="this.setCustomValidity('Sila isi tujuan atau kelas!')" oninput="this.setCustomValidity('')">
+            
             <label>Catatan</label>
             <textarea id="catatan" rows="2"></textarea>
             <button type="button" id="submitBtn" onclick="hantar()">HANTAR TEMPAHAN</button>
@@ -111,26 +113,11 @@
 
 <script>
     const scriptURL = 'https://script.google.com/macros/s/AKfycby_QiB1E0U5chktoZWBpEKPrizuNDCGh9mORJGWdC8rwbzWJnOvDG3TCvnr8H5OIwz2wg/exec';
-    const KATA_LALUAN_ADMIN = "admin2026"; // KATA LALUAN BARU
+    const KATA_LALUAN_ADMIN = "admin2026"; 
     let dataTempahan = [];
     const jadualMasa = { 1: "07:35", 2: "08:05", 3: "08:35", 4: "09:05", 5: "09:35", 6: "10:05", 7: "10:35", 8: "11:05", 9: "11:35", 10: "12:05", 11: "12:35", 12: "01:05" };
     const hariMs = { 'Monday': 'ISNIN', 'Tuesday': 'SELASA', 'Wednesday': 'RABU', 'Thursday': 'KHAMIS', 'Friday': 'JUMAAT' };
     
-    const nilamBM = {
-        'Monday': { 5:'3A', 6:'3A', 7:'1A', 8:'1A', 10:'4A', 11:'4A' },
-        'Tuesday': { 1:'6E', 2:'6E', 6:'4K', 7:'4K', 9:'6K', 10:'6K', 11:'6A', 12:'6A' },
-        'Wednesday': { 1:'4E', 2:'4E', 3:'2A', 4:'2A', 5:'3K', 6:'3K', 7:'5A', 8:'5A', 9:'1E', 10:'1E' },
-        'Thursday': { 1:'2E', 2:'2E', 5:'1K', 6:'1K', 10:'5E', 11:'5E' },
-        'Friday': { 3:'2K', 4:'2K', 5:'3E', 6:'3E', 7:'5K', 8:'5K' }
-    };
-    const nilamBI = {
-        'Monday': { 4:'5K', 5:'5K', 8:'2E', 9:'2E', 10:'2A', 11:'2A' },
-        'Tuesday': { 2:'4K', 3:'4K', 5:'1A', 6:'1A', 7:'6K', 8:'6K', 10:'3E', 11:'3E' },
-        'Wednesday': { 4:'5A', 5:'5A', 6:'4E', 7:'4E', 9:'3K', 10:'3K' },
-        'Thursday': { 3:'4A', 4:'4A', 5:'3A', 6:'3A', 7:'5E', 8:'5E', 9:'1K', 10:'1K' },
-        'Friday': { 2:'6A', 3:'6A', 4:'6E', 5:'6E', 6:'2K', 7:'2K', 8:'1E', 9:'1E' }
-    };
-
     function getMingguAkademik(tarikhInput) {
         const tkh = new Date(tarikhInput);
         const mulaSekolah = new Date("2026-01-12");
@@ -167,7 +154,6 @@
         const date = new Date(tarikhVal);
         const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
         const minggu = getMingguAkademik(tarikhVal);
-        const isGanjil = minggu % 2 !== 0;
         document.getElementById('hariAuto').innerText = `HARI: ${hariMs[dayName] || 'CUTI'} | MINGGU: ${minggu}`;
         const container = document.getElementById('slotGrid');
         const slotDitempah = dataTempahan.filter(t => (t.tarikh.includes('T') ? t.tarikh.split('T')[0] : t.tarikh) === tarikhVal && t.bilik === bilik).flatMap(t => String(t.waktu).split(", "));
@@ -175,17 +161,9 @@
         for (let i = 1; i <= 12; i++) {
             const val = `Waktu ${i}`;
             const isBooked = slotDitempah.includes(val);
-            let tagHTML = "";
-            if (bilik === "Makmal Komputer") {
-                if (isGanjil && nilamBM[dayName]?.[i]) tagHTML = `<span class="nilam-tag nilam-bm">NILAM BM (${nilamBM[dayName][i]})</span>`;
-                else if (!isGanjil && nilamBI[dayName]?.[i]) tagHTML = `<span class="nilam-tag nilam-bi">NILAM BI (${nilamBI[dayName][i]})</span>`;
-            } else if (bilik === "Pusat Sumber") {
-                if (isGanjil && nilamBI[dayName]?.[i]) tagHTML = `<span class="nilam-tag nilam-bi">NILAM BI (${nilamBI[dayName][i]})</span>`;
-                else if (!isGanjil && nilamBM[dayName]?.[i]) tagHTML = `<span class="nilam-tag nilam-bm">NILAM BM (${nilamBM[dayName][i]})</span>`;
-            }
             const div = document.createElement('div');
             div.className = `slot-card ${isBooked ? 'booked' : ''}`;
-            div.innerHTML = `<span class="slot-time">${val}</span><span class="slot-range">${jadualMasa[i]}</span>${tagHTML}${isBooked ? '<br><b style="color:#be123c;font-size:0.65rem;">DITEMPAH</b>' : ''}`;
+            div.innerHTML = `<span class="slot-time">${val}</span><span class="slot-range">${jadualMasa[i]}</span>${isBooked ? '<br><b style="color:#be123c;font-size:0.65rem;">DITEMPAH</b>' : ''}`;
             if(!isBooked) {
                 div.onclick = () => {
                     if (!div.classList.contains('selected') && container.querySelectorAll('.selected').length >= 3) { alert("Maksimum 3 slot!"); return; }
@@ -197,22 +175,25 @@
     }
 
     async function hantar() {
+        const inputTujuan = document.getElementById('tujuan');
+        const tujuanVal = inputTujuan.value.trim();
         const nama = document.getElementById('namaGuru').value;
         const bilik = document.getElementById('bilik').value;
         const tarikh = document.getElementById('tarikh').value;
-        const tujuan = document.getElementById('tujuan').value.trim();
         const selected = Array.from(document.querySelectorAll('.slot-card.selected .slot-time')).map(el => el.innerText);
 
-        if (!nama || !bilik || !tarikh) { alert("Sila lengkapkan Nama, Bilik dan Tarikh!"); return; }
-        if (selected.length === 0) { alert("Sila pilih slot waktu!"); return; }
-        
-        // VALIDASI TUJUAN WAJIB
-        if (tujuan === "") { 
-            alert("MAAF! Ruangan 'Tujuan / Kelas' WAJIB diisi sebelum menghantar."); 
-            document.getElementById('tujuan').focus();
-            return; 
+        // KUNCI MATI: JIKA TUJUAN KOSONG
+        if (!tujuanVal) {
+            alert("MAAF! Anda WAJIB mengisi TUJUAN / KELAS.");
+            inputTujuan.focus();
+            return false;
         }
-        
+
+        if (!nama || !bilik || !tarikh || selected.length === 0) {
+            alert("Sila lengkapkan Nama, Tarikh, Bilik dan pilih Slot!");
+            return false;
+        }
+
         const btn = document.getElementById('submitBtn');
         btn.disabled = true; btn.innerText = "Menghantar...";
 
@@ -220,7 +201,7 @@
             nama: nama,
             bilik: bilik,
             tarikh: tarikh,
-            tujuan: tujuan,
+            tujuan: tujuanVal,
             waktu: selected.join(", "),
             catatan: document.getElementById('catatan').value
         };
@@ -230,15 +211,12 @@
     }
 
     async function batalTempahan(idx) {
-        const pass = prompt("Sila masukkan Kata Laluan Admin untuk pembatalan:");
-        if (pass === null) return; 
+        const pass = prompt("Sila masukkan Kata Laluan Admin:");
         if (pass === KATA_LALUAN_ADMIN) {
-            if (confirm("Adakah anda pasti mahu membatalkan tempahan ini?")) {
-                await fetch(`${scriptURL}?action=delete&row=${idx + 2}`, { method: 'POST', mode: 'no-cors' });
-                location.reload();
-            }
-        } else {
-            alert("KATA LALUAN SALAH! Anda tidak dibenarkan membatalkan tempahan.");
+            await fetch(`${scriptURL}?action=delete&row=${idx + 2}`, { method: 'POST', mode: 'no-cors' });
+            location.reload();
+        } else if (pass !== null) {
+            alert("SALAH!");
         }
     }
     window.onload = muatSenarai;
