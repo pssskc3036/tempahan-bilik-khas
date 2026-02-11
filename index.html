@@ -13,17 +13,16 @@
         .header { text-align: center; margin-bottom: 20px; }
         .header img { width: 110px; height: auto; margin-bottom: 15px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
         .header h2 { color: var(--primary); font-size: 1.1rem; margin: 0; font-weight: 800; text-transform: uppercase; }
-        .alert-info { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; padding: 12px; border-radius: 12px; font-size: 0.7rem; font-weight: 700; margin-bottom: 10px; text-align: center; }
+        .alert-info { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; padding: 12px; border-radius: 12px; font-size: 0.7rem; font-weight: 700; margin-bottom: 15px; text-align: center; }
         label { display: block; margin-top: 15px; font-weight: 600; font-size: 0.8rem; color: #64748b; text-transform: uppercase; }
         .auto-day { background: #f1f5f9; padding: 10px; border-radius: 8px; font-weight: 800; color: #2563eb; margin-top: 5px; font-size: 0.9rem; border-left: 4px solid #2563eb; }
         select, input, textarea { width: 100%; padding: 14px; margin-top: 6px; border: 2px solid #e2e8f0; border-radius: 12px; box-sizing: border-box; font-size: 1rem; background: #f8fafc; font-family: inherit; }
         .slot-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
-        .slot-card { background: white; border: 2px solid #e2e8f0; padding: 12px; border-radius: 14px; display: flex; flex-direction: column; cursor: pointer; transition: 0.2s; position: relative; min-height: 90px; }
+        .slot-card { background: white; border: 2px solid #e2e8f0; padding: 12px; border-radius: 14px; display: flex; flex-direction: column; cursor: pointer; transition: 0.2s; position: relative; min-height: 95px; }
         .slot-card.selected { border-color: var(--primary); background: #eff6ff; box-shadow: 0 0 0 1px var(--primary); }
         .slot-card.booked { background: #fff1f2 !important; border-color: #fecdd3 !important; cursor: not-allowed !important; pointer-events: none !important; opacity: 0.8; }
         .slot-time { font-weight: 800; font-size: 0.9rem; color: #334155; }
         .slot-range { font-size: 0.7rem; color: #64748b; }
-        /* CSS TAGGING NILAM */
         .nilam-tag { font-size: 0.65rem; font-weight: 800; padding: 4px 6px; border-radius: 6px; margin-top: 5px; width: fit-content; display: block; border: 1px solid rgba(0,0,0,0.1); }
         .nilam-bm { background-color: #dcfce7 !important; color: #166534 !important; }
         .nilam-bi { background-color: #fef9c3 !important; color: #854d0e !important; }
@@ -105,7 +104,7 @@
             <div id="slotGrid" class="slot-grid"></div>
 
             <label>Tujuan / Kelas (WAJIB)</label>
-            <input type="text" id="tujuan" placeholder="Cth: PdPC Sains 5K" required>
+            <input type="text" id="tujuan" placeholder="Cth: PdPC Sains 5K / NILAM" required>
 
             <label>Catatan</label>
             <textarea id="catatan" rows="2"></textarea>
@@ -122,8 +121,8 @@
     let dataTempahan = [];
     const jadualMasa = { 1: "07:35", 2: "08:05", 3: "08:35", 4: "09:05", 5: "09:35", 6: "10:05", 7: "10:35", 8: "11:05", 9: "11:35", 10: "12:05", 11: "12:35", 12: "01:05" };
     const hariMs = { 'Monday': 'ISNIN', 'Tuesday': 'SELASA', 'Wednesday': 'RABU', 'Thursday': 'KHAMIS', 'Friday': 'JUMAAT' };
-    
-    // DATA NILAM (TETAP)
+    const senaraiHariBM = ['AHAD', 'ISNIN', 'SELASA', 'RABU', 'KHAMIS', 'JUMAAT', 'SABTU'];
+
     const nilamBM = {
         'Monday': { 5:'3A', 6:'3A', 7:'1A', 8:'1A', 10:'4A', 11:'4A' },
         'Tuesday': { 1:'6E', 2:'6E', 6:'4K', 7:'4K', 9:'6K', 10:'6K', 11:'6A', 12:'6A' },
@@ -154,8 +153,14 @@
             div.innerHTML = "";
             dataTempahan.slice().reverse().forEach((item, index) => {
                 const realIdx = dataTempahan.length - 1 - index;
+                
+                // --- Format Tarikh & Hari ---
+                let tObj = new Date(item.tarikh);
+                let hariTeks = senaraiHariBM[tObj.getDay()];
+                let tarikhTeks = tObj.toLocaleDateString('en-GB');
+
                 div.innerHTML += `<div class="booking-item">
-                    <span style="color:#2563eb; font-weight:800; font-size:0.8rem;">📅 ${item.tarikh} | ${item.bilik}</span><br>
+                    <span style="color:#2563eb; font-weight:800; font-size:0.8rem;">📅 ${hariTeks} (${tarikhTeks}) | ${item.bilik}</span><br>
                     <strong style="font-size:0.9rem;">${item.nama}</strong><br>
                     <small style="color:#64748b;">🕒 ${item.waktu}</small><br>
                     <small style="color:#1e293b;">📌 ${item.tujuan}</small>
@@ -189,37 +194,22 @@
             const val = `Waktu ${i}`;
             const isBooked = slotDitempah.includes(val);
             
-            // LOGIK TAGGING NILAM
             let tagHTML = "";
             if (bilik === "Makmal Komputer") {
-                if (isGanjil && nilamBM[dayName] && nilamBM[dayName][i]) {
-                    tagHTML = `<span class="nilam-tag nilam-bm">NILAM BM (${nilamBM[dayName][i]})</span>`;
-                } else if (!isGanjil && nilamBI[dayName] && nilamBI[dayName][i]) {
-                    tagHTML = `<span class="nilam-tag nilam-bi">NILAM BI (${nilamBI[dayName][i]})</span>`;
-                }
+                if (isGanjil && nilamBM[dayName]?.[i]) tagHTML = `<span class="nilam-tag nilam-bm">NILAM BM (${nilamBM[dayName][i]})</span>`;
+                else if (!isGanjil && nilamBI[dayName]?.[i]) tagHTML = `<span class="nilam-tag nilam-bi">NILAM BI (${nilamBI[dayName][i]})</span>`;
             } else if (bilik === "Pusat Sumber") {
-                if (isGanjil && nilamBI[dayName] && nilamBI[dayName][i]) {
-                    tagHTML = `<span class="nilam-tag nilam-bi">NILAM BI (${nilamBI[dayName][i]})</span>`;
-                } else if (!isGanjil && nilamBM[dayName] && nilamBM[dayName][i]) {
-                    tagHTML = `<span class="nilam-tag nilam-bm">NILAM BM (${nilamBM[dayName][i]})</span>`;
-                }
+                if (isGanjil && nilamBI[dayName]?.[i]) tagHTML = `<span class="nilam-tag nilam-bi">NILAM BI (${nilamBI[dayName][i]})</span>`;
+                else if (!isGanjil && nilamBM[dayName]?.[i]) tagHTML = `<span class="nilam-tag nilam-bm">NILAM BM (${nilamBM[dayName][i]})</span>`;
             }
 
             const div = document.createElement('div');
             div.className = `slot-card ${isBooked ? 'booked' : ''}`;
-            div.innerHTML = `
-                <span class="slot-time">${val}</span>
-                <span class="slot-range">${jadualMasa[i]}</span>
-                ${tagHTML}
-                ${isBooked ? '<br><b style="color:#be123c;font-size:0.65rem;">DITEMPAH</b>' : ''}
-            `;
+            div.innerHTML = `<span class="slot-time">${val}</span><span class="slot-range">${jadualMasa[i]}</span>${tagHTML}${isBooked ? '<br><b style="color:#be123c;font-size:0.65rem;">DITEMPAH</b>' : ''}`;
             
             if(!isBooked) {
                 div.onclick = () => {
-                    if (!div.classList.contains('selected') && container.querySelectorAll('.selected').length >= 3) { 
-                        alert("Maksimum 3 slot sahaja!"); 
-                        return; 
-                    }
+                    if (!div.classList.contains('selected') && container.querySelectorAll('.selected').length >= 3) { alert("Maksimum 3 slot!"); return; }
                     div.classList.toggle('selected');
                 };
             }
@@ -257,11 +247,11 @@
     async function batalTempahan(idx) {
         const pass = prompt("Sila masukkan Kata Laluan Admin:");
         if (pass === KATA_LALUAN_ADMIN) {
-            if(confirm("Adakah anda pasti mahu membatalkan tempahan ini?")){
+            if(confirm("Batal tempahan ini?")){
                 await fetch(`${scriptURL}?action=delete&row=${idx + 2}`, { method: 'POST', mode: 'no-cors' });
                 location.reload();
             }
-        } else if (pass !== null) { alert("Kata Laluan Salah!"); }
+        } else if (pass !== null) { alert("SALAH!"); }
     }
     window.onload = muatSenarai;
 </script>
