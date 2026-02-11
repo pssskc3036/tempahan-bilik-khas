@@ -29,7 +29,12 @@
         button#submitBtn { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 16px; margin-top: 25px; cursor: pointer; font-weight: 700; font-size: 1rem; }
         .booking-item { background: white; border-radius: 18px; padding: 15px; margin-bottom: 12px; border: 1px solid #e2e8f0; position: relative; }
         .btn-delete { background: #fff1f2; color: #e11d48; border: 1px solid #fecdd3; padding: 6px 12px; font-size: 0.65rem; border-radius: 8px; font-weight: 700; cursor: pointer; margin-top: 10px; width: 100%; }
-        .box-luar-waktu { border: 2px dashed #cbd5e1; padding: 15px; border-radius: 16px; margin-top: 15px; background: #f8fafc; }
+        
+        /* BAHAGIAN KHAS SELEPAS SEKOLAH */
+        .section-divider { border-top: 2px solid #e2e8f0; margin: 25px 0 15px 0; position: relative; }
+        .section-title { background: #f1f5f9; color: #1e40af; padding: 5px 15px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; position: absolute; top: -14px; left: 50%; transform: translateX(-50%); white-space: nowrap; border: 1px solid #bfdbfe; }
+        .box-luar-sekolah { background: #ffffff; border: 2px solid #3b82f6; padding: 15px; border-radius: 18px; margin-top: 10px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1); }
+        .wajib-label { color: #2563eb; font-weight: 800; font-size: 0.85rem; display: block; margin-bottom: 5px; }
     </style>
 </head>
 <body>
@@ -102,19 +107,24 @@
                 <option value="Studio CliPS Channel">Studio CliPS Channel</option>
             </select>
 
-            <label>Pilih Slot PdPC (Jika berkaitan)</label>
+            <label>Pilih Slot PdPC (Waktu 1 - 12)</label>
             <div id="slotGrid" class="slot-grid"></div>
 
-            <div class="box-luar-waktu">
-                <label style="margin-top:0; color:#475569;">Atau Nyatakan Waktu (Jika luar waktu sekolah)</label>
+            <div class="section-divider">
+                <div class="section-title">TEMPAHAN SELEPAS WAKTU PERSEKOLAHAN</div>
+            </div>
+
+            <div class="box-luar-sekolah">
+                <span class="wajib-label">NYATAKAN WAKTU (WAJIB JIKA TIADA SLOT DIPILIH)</span>
                 <input type="text" id="waktuManual" placeholder="Cth: 2.30 - 4.30 Petang">
+                <small style="color: #64748b; font-size: 0.7rem;">*Gunakan ruangan ini untuk aktiviti petang/malam/hujung minggu.</small>
             </div>
 
             <label>Tujuan / Kelas (WAJIB)</label>
-            <input type="text" id="tujuan" placeholder="Cth: PdPC Sains 5K / Kokurikulum" required>
+            <input type="text" id="tujuan" placeholder="Cth: PdPC Sains 5K / Kelas Tambahan" required>
 
             <label>Catatan</label>
-            <textarea id="catatan" rows="2"></textarea>
+            <textarea id="catatan" rows="2" placeholder="Catatan tambahan (jika ada)"></textarea>
 
             <button type="submit" id="submitBtn">HANTAR TEMPAHAN</button>
         </form>
@@ -130,15 +140,129 @@
     const hariMs = { 'Monday': 'ISNIN', 'Tuesday': 'SELASA', 'Wednesday': 'RABU', 'Thursday': 'KHAMIS', 'Friday': 'JUMAAT' };
     const senaraiHariBM = ['AHAD', 'ISNIN', 'SELASA', 'RABU', 'KHAMIS', 'JUMAAT', 'SABTU'];
 
-    const nilamBM = {
-        'Monday': { 5:'3A', 6:'3A', 7:'1A', 8:'1A', 10:'4A', 11:'4A' },
-        'Tuesday': { 1:'6E', 2:'6E', 6:'4K', 7:'4K', 9:'6K', 10:'6K', 11:'6A', 12:'6A' },
-        'Wednesday': { 1:'4E', 2:'4E', 3:'2A', 4:'2A', 5:'3K', 6:'3K', 7:'5A', 8:'5A', 9:'1E', 10:'1E' },
-        'Thursday': { 1:'2E', 2:'2E', 5:'1K', 6:'1K', 10:'5E', 11:'5E' },
-        'Friday': { 3:'2K', 4:'2K', 5:'3E', 6:'3E', 7:'5K', 8:'5K' }
-    };
-    const nilamBI = {
-        'Monday': { 4:'5K', 5:'5K', 8:'2E', 9:'2E', 10:'2A', 11:'2A' },
-        'Tuesday': { 2:'4K', 3:'4K', 5:'1A', 6:'1A', 7:'6K', 8:'6K', 10:'3E', 11:'3E' },
-        'Wednesday': { 4:'5A', 5:'5A', 6:'4E', 7:'4E', 9:'3K', 10:'3K' },
-        'Thursday': { 3:'4A', 4:'4A', 5:'3A', 6:'3A', 7:'5E', 8:'5E', 9:'1K',
+    // Data Nilam
+    const nilamBM = { 'Monday': { 5:'3A', 6:'3A', 7:'1A', 8:'1A', 10:'4A', 11:'4A' }, 'Tuesday': { 1:'6E', 2:'6E', 6:'4K', 7:'4K', 9:'6K', 10:'6K', 11:'6A', 12:'6A' }, 'Wednesday': { 1:'4E', 2:'4E', 3:'2A', 4:'2A', 5:'3K', 6:'3K', 7:'5A', 8:'5A', 9:'1E', 10:'1E' }, 'Thursday': { 1:'2E', 2:'2E', 5:'1K', 6:'1K', 10:'5E', 11:'5E' }, 'Friday': { 3:'2K', 4:'2K', 5:'3E', 6:'3E', 7:'5K', 8:'5K' } };
+    const nilamBI = { 'Monday': { 4:'5K', 5:'5K', 8:'2E', 9:'2E', 10:'2A', 11:'2A' }, 'Tuesday': { 2:'4K', 3:'4K', 5:'1A', 6:'1A', 7:'6K', 8:'6K', 10:'3E', 11:'3E' }, 'Wednesday': { 4:'5A', 5:'5A', 6:'4E', 7:'4E', 9:'3K', 10:'3K' }, 'Thursday': { 3:'4A', 4:'4A', 5:'3A', 6:'3A', 7:'5E', 8:'5E', 9:'1K', 10:'1K' }, 'Friday': { 2:'6A', 3:'6A', 4:'6E', 5:'6E', 6:'2K', 7:'2K', 8:'1E', 9:'1E' } };
+
+    function getMingguAkademik(tarikhInput) {
+        const tkh = new Date(tarikhInput);
+        const mulaSekolah = new Date("2026-01-12");
+        const diffInDays = Math.floor((tkh - mulaSekolah) / (1000 * 60 * 60 * 24));
+        return diffInDays < 0 ? 0 : Math.floor(diffInDays / 7) + 1;
+    }
+
+    async function muatSenarai() {
+        try {
+            const res = await fetch(scriptURL + "?action=read");
+            dataTempahan = await res.json();
+            const div = document.getElementById('senaraiTempahan');
+            div.innerHTML = "";
+            dataTempahan.slice().reverse().forEach((item, index) => {
+                const realIdx = dataTempahan.length - 1 - index;
+                let tObj = new Date(item.tarikh);
+                let hariTeks = senaraiHariBM[tObj.getDay()];
+                let tarikhTeks = tObj.toLocaleDateString('en-GB');
+
+                div.innerHTML += `<div class="booking-item">
+                    <span style="color:#2563eb; font-weight:800; font-size:0.8rem;">📅 ${hariTeks} (${tarikhTeks}) | ${item.bilik}</span><br>
+                    <strong style="font-size:0.9rem;">${item.nama}</strong><br>
+                    <small style="color:#64748b;">🕒 ${item.waktu}</small><br>
+                    <small style="color:#1e293b;">📌 ${item.tujuan}</small>
+                    <button class="btn-delete" onclick="batalTempahan(${realIdx})">BATAL</button>
+                </div>`;
+            });
+            kemaskiniSlot();
+        } catch (e) {}
+    }
+
+    function kemaskiniSlot() {
+        const bilik = document.getElementById('bilik').value;
+        const tarikhVal = document.getElementById('tarikh').value;
+        if (!tarikhVal || !bilik) return;
+        const date = new Date(tarikhVal);
+        const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+        const minggu = getMingguAkademik(tarikhVal);
+        const isGanjil = (minggu % 2 !== 0);
+        document.getElementById('hariAuto').innerText = `HARI: ${hariMs[dayName] || 'CUTI'} | MINGGU: ${minggu}`;
+        
+        const container = document.getElementById('slotGrid');
+        const slotDitempah = dataTempahan.filter(t => {
+            const tDate = t.tarikh.includes('T') ? t.tarikh.split('T')[0] : t.tarikh;
+            return tDate === tarikhVal && t.bilik === bilik;
+        }).flatMap(t => String(t.waktu).split(", "));
+        
+        container.innerHTML = "";
+        for (let i = 1; i <= 12; i++) {
+            const val = `Waktu ${i}`;
+            const isBooked = slotDitempah.includes(val);
+            let tagHTML = "";
+            if (bilik === "Makmal Komputer") {
+                if (isGanjil && nilamBM[dayName]?.[i]) tagHTML = `<span class="nilam-tag nilam-bm">NILAM BM (${nilamBM[dayName][i]})</span>`;
+                else if (!isGanjil && nilamBI[dayName]?.[i]) tagHTML = `<span class="nilam-tag nilam-bi">NILAM BI (${nilamBI[dayName][i]})</span>`;
+            } else if (bilik === "Pusat Sumber") {
+                if (isGanjil && nilamBI[dayName]?.[i]) tagHTML = `<span class="nilam-tag nilam-bi">NILAM BI (${nilamBI[dayName][i]})</span>`;
+                else if (!isGanjil && nilamBM[dayName]?.[i]) tagHTML = `<span class="nilam-tag nilam-bm">NILAM BM (${nilamBM[dayName][i]})</span>`;
+            }
+            const div = document.createElement('div');
+            div.className = `slot-card ${isBooked ? 'booked' : ''}`;
+            div.innerHTML = `<span class="slot-time">${val}</span><span class="slot-range">${jadualMasa[i]}</span>${tagHTML}${isBooked ? '<br><b style="color:#be123c;font-size:0.65rem;">DITEMPAH</b>' : ''}`;
+            if(!isBooked) {
+                div.onclick = () => {
+                    if (!div.classList.contains('selected') && container.querySelectorAll('.selected').length >= 3) { alert("Maksimum 3 slot!"); return; }
+                    div.classList.toggle('selected');
+                };
+            }
+            container.appendChild(div);
+        }
+    }
+
+    async function hantar(event) {
+        event.preventDefault();
+        const selected = Array.from(document.querySelectorAll('.slot-card.selected .slot-time')).map(el => el.innerText);
+        const manual = document.getElementById('waktuManual').value.trim();
+        
+        let waktuHantar = "";
+        if (selected.length > 0) {
+            waktuHantar = selected.join(", ");
+        } else if (manual !== "") {
+            waktuHantar = manual;
+        } else {
+            alert("Sila pilih slot PdPC atau nyatakan waktu tempahan petang!");
+            return;
+        }
+
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true; btn.innerText = "Menghantar...";
+
+        const payload = {
+            nama: document.getElementById('namaGuru').value,
+            bilik: document.getElementById('bilik').value,
+            tarikh: document.getElementById('tarikh').value,
+            tujuan: document.getElementById('tujuan').value,
+            waktu: waktuHantar,
+            catatan: document.getElementById('catatan').value
+        };
+
+        try {
+            await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+            alert("Tempahan Berjaya!");
+            location.reload();
+        } catch (e) {
+            alert("Ralat!");
+            btn.disabled = false; btn.innerText = "HANTAR TEMPAHAN";
+        }
+    }
+
+    async function batalTempahan(idx) {
+        const pass = prompt("Sila masukkan Kata Laluan Admin:");
+        if (pass === KATA_LALUAN_ADMIN) {
+            if(confirm("Batal tempahan ini?")){
+                await fetch(`${scriptURL}?action=delete&row=${idx + 2}`, { method: 'POST', mode: 'no-cors' });
+                location.reload();
+            }
+        } else if (pass !== null) { alert("SALAH!"); }
+    }
+    window.onload = muatSenarai;
+</script>
+</body>
+</html>
