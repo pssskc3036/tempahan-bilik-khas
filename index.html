@@ -1,8 +1,3 @@
-Faham, Cikgu. Saya telah kemas kini kod tersebut dengan memasukkan URL Apps Script yang baru (yang berakhir dengan ...2wg/exec) dan memastikan semua fungsi Batal (Admin) serta Format Masa berada di tempat yang betul.
-
-Cikgu hanya perlu Copy & Paste semua kod di bawah ini ke dalam fail index.html di GitHub cikgu:
-
-HTML
 <!DOCTYPE html>
 <html lang="ms">
 <head>
@@ -118,7 +113,6 @@ HTML
 </div>
 
 <script>
-    // URL Deployment baru cikgu
     const scriptURL = 'https://script.google.com/macros/s/AKfycby_QiB1E0U5chktoZWBpEKPrizuNDCGh9mORJGWdC8rwbzWJnOvDG3TCvnr8H5OIwz2wg/exec';
     let dataTempahan = [];
 
@@ -171,10 +165,8 @@ HTML
                 btn.disabled = true;
                 
                 try {
-                    // rowIdx + 2 kerana row 1 adalah header di Google Sheets
                     await fetch(`${scriptURL}?action=delete&row=${rowIdx + 2}`, { method: 'POST', mode: 'no-cors' });
                     alert("Tempahan telah dibatalkan.");
-                    // Muat semula data selepas 1 saat untuk bagi masa script proses
                     setTimeout(() => {
                         muatSenarai().then(() => kemaskiniSlot());
                     }, 1000);
