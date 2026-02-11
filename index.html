@@ -7,9 +7,9 @@
     <style>
         body { font-family: 'Segoe UI', sans-serif; padding: 15px; background: #f0f2f5; }
         .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 550px; margin: auto; }
-        .logo-container { text-align: center; margin-bottom: 10px; }
-        .logo-container img { width: 120px; height: auto; }
-        h2 { text-align: center; color: #1a73e8; font-size: 1.1em; text-transform: uppercase; margin-bottom: 20px; line-height: 1.4; border-top: 2px solid #eee; pt: 15px; }
+        .logo-container { text-align: center; margin-bottom: 15px; }
+        .logo-container img { width: 100px; height: auto; border-radius: 5px; }
+        h2 { text-align: center; color: #1a73e8; font-size: 1.1em; text-transform: uppercase; margin-bottom: 20px; line-height: 1.4; border-top: 1px solid #eee; padding-top: 15px; }
         label { display: block; margin-top: 15px; font-weight: bold; font-size: 13px; color: #444; }
         select, input[type="text"], input[type="date"] { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #dadce0; border-radius: 8px; box-sizing: border-box; }
         .slot-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
@@ -21,6 +21,7 @@
         .booked-tag { color: #d93025; font-size: 10px; font-weight: bold; margin-top: 5px; display: block; }
         button { width: 100%; padding: 15px; background: #1a73e8; color: white; border: none; border-radius: 8px; margin-top: 25px; cursor: pointer; font-weight: bold; font-size: 16px; }
         
+        /* GAYA SENARAI */
         .list-section { margin-top: 30px; border-top: 3px solid #1a73e8; padding-top: 20px; }
         .list-title { font-weight: bold; color: #1a73e8; margin-bottom: 15px; text-align: center; font-size: 14px; }
         .tempahan-item { background: #fff; border-left: 5px solid #1a73e8; padding: 15px; border-radius: 8px; margin-bottom: 15px; font-size: 13px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); position: relative; }
@@ -28,14 +29,14 @@
         .t-date { font-weight: bold; color: #d93025; font-size: 14px; display: block; }
         .t-bilik { font-weight: bold; color: #1a73e8; }
         .t-waktu { color: #555; font-size: 12px; background: #f1f3f4; padding: 4px 8px; border-radius: 4px; margin-top: 5px; display: inline-block; }
-        .btn-batal { background: #ff4d4d !important; color: white !important; padding: 8px 12px !important; font-size: 11px !important; width: auto !important; margin-top: 10px !important; display: inline-block !important; }
+        .btn-batal { background: #ff4d4d !important; color: white !important; padding: 8px 12px !important; font-size: 11px !important; width: auto !important; margin-top: 10px !important; display: inline-block !important; cursor: pointer; border-radius: 5px; border:none;}
     </style>
 </head>
 <body>
 
 <div class="card">
     <div class="logo-container">
-        <img src="https://lh3.googleusercontent.com/u/0/d/1jvQNnrcg0lnnOIX4kh4MChC1M4rYbyGg" alt="Logo SK Clifford">
+        <img src="https://lh3.googleusercontent.com/d/1jvQNnrcg0lnnOIX4kh4MChC1M4rYbyGg" alt="Logo SK Clifford">
     </div>
 
     <h2>BORANG TEMPAHAN BILIK KHAS<br>SK CLIFFORD 2026</h2>
@@ -115,93 +116,4 @@
 </div>
 
 <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycby_QiB1E0U5chktoZWBpEKPrizuNDCGh9mORJGWdC8rwbzWJnOvDG3TCvnr8H5OIwz2wg/exec';
-    let dataTempahan = [];
-
-    const jadualMasa = { 1: "07:35-08:05", 2: "08:05-08:35", 3: "08:35-09:05", 4: "09:05-09:35", 5: "09:35-10:05", 6: "10:05-10:35", 7: "10:35-11:05", 8: "11:05-11:35", 9: "11:35-12:05", 10: "12:05-12:35", 11: "12:35-01:05", 12: "01:05-01:35", "Lepas Sekolah": "Sesi Petang" };
-
-    function formatTarikhHari(tarikhStr) {
-        if (!tarikhStr) return "";
-        let d = new Date(tarikhStr);
-        const hariNama = ["Ahad","Isnin","Selasa","Rabu","Khamis","Jumaat","Sabtu"][d.getDay()];
-        return `${hariNama}, ${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
-    }
-
-    function huraikanWaktu(waktuStr) {
-        if (!waktuStr) return "";
-        return waktuStr.split(", ").map(w => jadualMasa[w.replace("Waktu ", "")] || w).join(" | ");
-    }
-
-    async function muatSenarai() {
-        try {
-            const res = await fetch(scriptURL + "?action=read");
-            dataTempahan = await res.json();
-            const div = document.getElementById('senaraiTempahan');
-            div.innerHTML = "";
-            if (dataTempahan.length === 0) { div.innerHTML = "<p style='text-align:center'>Tiada rekod.</p>"; return; }
-            
-            dataTempahan.slice().reverse().forEach((item, index) => {
-                const realIndex = dataTempahan.length - 1 - index;
-                div.innerHTML += `
-                    <div class="tempahan-item">
-                        <div class="t-header">
-                            <span class="t-date">📅 ${formatTarikhHari(item.tarikh)}</span>
-                            <span class="t-bilik">📍 ${item.bilik}</span>
-                        </div>
-                        <div><b>Guru:</b> ${item.nama}</div>
-                        <div><b>Tujuan:</b> ${item.tujuan || "-"}</div>
-                        <div class="t-waktu">🕒 ${huraikanWaktu(item.waktu)}</div><br>
-                        <button class="btn-batal" onclick="batalTempahan(${realIndex})">BATAL TEMPAHAN</button>
-                    </div>`;
-            });
-        } catch (e) { console.error(e); }
-    }
-
-    async function batalTempahan(rowIdx) {
-        const password = prompt("Sila masukkan kata laluan ADMIN:");
-        if (password === "admin2026") {
-            if (confirm("Batal tempahan ini?")) {
-                await fetch(`${scriptURL}?action=delete&row=${rowIdx + 2}`, { method: 'POST', mode: 'no-cors' });
-                alert("Berjaya dipadam.");
-                location.reload();
-            }
-        } else if (password !== null) { alert("Salah!"); }
-    }
-
-    function hantar() {
-        const checked = document.querySelectorAll('input[name="sw"]:checked');
-        if (checked.length < 1) { alert("Pilih slot!"); return; }
-        const btn = document.getElementById('submitBtn');
-        const payload = { 
-            nama: document.getElementById('namaGuru').value, 
-            bilik: document.getElementById('bilik').value, 
-            tarikh: document.getElementById('tarikh').value, 
-            tujuan: document.getElementById('tujuan').value, 
-            waktu: Array.from(checked).map(c => c.value).join(", ") 
-        };
-        btn.disabled = true; btn.innerText = "Hantar...";
-        fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
-        .then(() => { alert("Berjaya!"); location.reload(); });
-    }
-
-    async function kemaskiniSlot() {
-        const bilik = document.getElementById('bilik').value;
-        const tarikh = document.getElementById('tarikh').value;
-        const container = document.getElementById('slotGrid');
-        if (!bilik || !tarikh) { container.innerHTML = ""; return; }
-        
-        const tempahanSediaAda = dataTempahan.filter(t => t.tarikh.includes(tarikh) && t.bilik === bilik);
-        const slotDitempah = tempahanSediaAda.flatMap(t => String(t.waktu).split(", "));
-        
-        container.innerHTML = "";
-        for (let i = 1; i <= 12; i++) {
-            const labelWaktuI = `Waktu ${i}`;
-            const isBooked = slotDitempah.includes(labelWaktuI);
-            container.innerHTML += `<label class="slot-item ${isBooked ? 'booked' : ''}"><input type="checkbox" name="sw" value="${labelWaktuI}" ${isBooked ? 'disabled' : ''}><div><span class="slot-label">${labelWaktuI}</span><span class="slot-info">${jadualMasa[i]}</span>${isBooked ? '<span class="booked-tag">❌ DITEMPAH</span>' : ''}</div></label>`;
-        }
-    }
-
-    window.onload = muatSenarai;
-</script>
-</body>
-</html>
+    const scriptURL = '
