@@ -15,6 +15,7 @@
         .header h2 { color: var(--primary); font-size: 1.1rem; margin: 0; font-weight: 800; text-transform: uppercase; line-height: 1.4; }
         .alert-info { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; padding: 12px; border-radius: 12px; font-size: 0.7rem; font-weight: 700; margin-bottom: 20px; text-align: center; }
         label { display: block; margin-top: 15px; font-weight: 600; font-size: 0.8rem; color: #64748b; text-transform: uppercase; }
+        .auto-day { background: #f1f5f9; padding: 10px; border-radius: 8px; font-weight: 800; color: #2563eb; margin-top: 5px; font-size: 0.9rem; border-left: 4px solid #2563eb; }
         select, input, textarea { width: 100%; padding: 14px; margin-top: 6px; border: 2px solid #e2e8f0; border-radius: 12px; box-sizing: border-box; font-size: 1rem; background: #f8fafc; font-family: inherit; }
         .slot-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
         .slot-card { background: white; border: 2px solid #e2e8f0; padding: 12px; border-radius: 14px; display: flex; flex-direction: column; cursor: pointer; transition: 0.2s; }
@@ -26,22 +27,22 @@
         .nilam-bm { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
         .nilam-bi { background: #fef9c3; color: #854d0e; border: 1px solid #fef08a; }
         button#submitBtn { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 16px; margin-top: 25px; cursor: pointer; font-weight: 700; font-size: 1rem; }
-        .booking-item { background: white; border-radius: 18px; padding: 15px; margin-bottom: 12px; border: 1px solid #f1f5f9; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-        .btn-delete { background: #fff1f2; color: #e11d48; border: none; padding: 8px 14px; font-size: 0.7rem; border-radius: 10px; font-weight: 700; cursor: pointer; margin-top: 10px; }
+        .booking-item { background: white; border-radius: 18px; padding: 15px; margin-bottom: 12px; border: 1px solid #e2e8f0; position: relative; }
+        .btn-delete { background: #fff1f2; color: #e11d48; border: 1px solid #fecdd3; padding: 6px 12px; font-size: 0.65rem; border-radius: 8px; font-weight: 700; cursor: pointer; margin-top: 10px; width: 100%; }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="card">
         <div class="header">
-            <img src="https://drive.google.com/uc?export=view&id=1jvQNnrcg0lnnOIX4kh4MChC1M4rYbyGg" alt="Logo SK Clifford">
+            <img src="https://drive.google.com/uc?export=view&id=1jvQNnrcg0lnnOIX4kh4MChC1M4rYbyGg" alt="Logo">
             <h2>SISTEM TEMPAHAN BILIK KHAS 2026</h2>
         </div>
         <div class="alert-info">⚠️ MAKSIMUM 3 SLOT | PENGGILIRAN NILAM AUTOMATIK</div>
         <form id="tempahanForm">
             <label>Nama Guru</label>
             <select id="namaGuru" required>
-                <option value="">-- Pilih Nama Guru --</option>
+                <option value="">-- Pilih Nama Guru (43 Orang) --</option>
                 <option value="ROHADI BIN KAMALUDIN">ROHADI BIN KAMALUDIN</option>
                 <option value="LUKMAN HAKIM BIN ABDULLAH">LUKMAN HAKIM BIN ABDULLAH</option>
                 <option value="JAMILAH BINTI LUDIN">JAMILAH BINTI LUDIN</option>
@@ -86,6 +87,9 @@
                 <option value="ZUBAIDAH BINTI ABD RAHMAN">ZUBAIDAH BINTI ABD RAHMAN</option>
                 <option value="ZULAZHA BIN AB KADIR">ZULAZHA BIN AB KADIR</option>
             </select>
+            <label>Tarikh</label>
+            <input type="date" id="tarikh" onchange="kemaskiniSlot()" required>
+            <div id="hariAuto" class="auto-day">HARI: -</div>
             <label>Bilik</label>
             <select id="bilik" onchange="kemaskiniSlot()" required>
                 <option value="">-- Pilih Lokasi --</option>
@@ -93,13 +97,11 @@
                 <option value="Pusat Sumber">Pusat Sumber (PSS)</option>
                 <option value="Studio CliPS Channel">Studio CliPS Channel</option>
             </select>
-            <label>Tarikh</label>
-            <input type="date" id="tarikh" onchange="kemaskiniSlot()" required>
             <div id="slotGrid" class="slot-grid"></div>
-            <label>Tempahan Selepas Sekolah / Catatan</label>
-            <textarea id="catatan" rows="2" placeholder="Contoh: Mesyuarat (2.30 - 4.30 ptg)"></textarea>
             <label>Tujuan / Kelas (WAJIB)</label>
             <input type="text" id="tujuan" placeholder="Cth: PdPC Sains 5K / NILAM" required>
+            <label>Catatan / Waktu Selepas Sekolah</label>
+            <textarea id="catatan" rows="2"></textarea>
             <button type="button" id="submitBtn" onclick="hantar()">HANTAR TEMPAHAN</button>
         </form>
         <div id="senaraiTempahan" style="margin-top: 30px;"></div>
@@ -109,6 +111,7 @@
     const scriptURL = 'https://script.google.com/macros/s/AKfycby_QiB1E0U5chktoZWBpEKPrizuNDCGh9mORJGWdC8rwbzWJnOvDG3TCvnr8H5OIwz2wg/exec';
     let dataTempahan = [];
     const jadualMasa = { 1: "07:35", 2: "08:05", 3: "08:35", 4: "09:05", 5: "09:35", 6: "10:05", 7: "10:35", 8: "11:05", 9: "11:35", 10: "12:05", 11: "12:35", 12: "01:05" };
+    const hariMs = { 'Monday': 'ISNIN', 'Tuesday': 'SELASA', 'Wednesday': 'RABU', 'Thursday': 'KHAMIS', 'Friday': 'JUMAAT', 'Saturday': 'SABTU', 'Sunday': 'AHAD' };
     
     const nilamFull = {
         'Monday': { bm: { 5:'3A', 6:'1A', 7:'4A', 8:'6E', 10:'4K', 11:'6K' }, bi: { 4:'5K', 5:'2E', 8:'2A', 9:'4K', 10:'1A', 11:'6K' } },
@@ -124,6 +127,11 @@
         return Math.ceil((((d - new Date(Date.UTC(d.getUTCFullYear(),0,1))) / 86400000) + 1)/7);
     }
 
+    function formatTkh(s) {
+        const d = new Date(s);
+        return isNaN(d) ? s : `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()}`;
+    }
+
     async function muatSenarai() {
         try {
             const res = await fetch(scriptURL + "?action=read");
@@ -131,8 +139,18 @@
             const div = document.getElementById('senaraiTempahan');
             div.innerHTML = "";
             dataTempahan.slice().reverse().forEach((item, index) => {
-                const realIndex = dataTempahan.length - 1 - index;
-                div.innerHTML += `<div class="booking-item"><strong>${item.tarikh}</strong> - ${item.bilik}<br>${item.nama}<br><small>${item.waktu}</small><br><em>${item.tujuan}</em><br><button class="btn-delete" onclick="batalTempahan(${realIndex})">BATAL</button></div>`;
+                const realIdx = dataTempahan.length - 1 - index;
+                const slotMs = item.waktu.split(", ").map(w => {
+                    const num = w.replace("Waktu ", "");
+                    return `${w} (${jadualMasa[num] || ''})`;
+                }).join(", ");
+                div.innerHTML += `<div class="booking-item">
+                    <span style="color:#2563eb; font-weight:800; font-size:0.8rem;">📅 ${formatTkh(item.tarikh)} | ${item.bilik}</span><br>
+                    <strong style="font-size:0.9rem;">${item.nama}</strong><br>
+                    <small style="color:#64748b;">🕒 ${slotMs}</small><br>
+                    <em style="display:block; margin-top:5px; font-size:0.8rem; border-left:3px solid #e2e8f0; padding-left:8px;">${item.tujuan} ${item.catatan ? ' | ' + item.catatan : ''}</em>
+                    <button class="btn-delete" onclick="batalTempahan(${realIdx})">BATAL TEMPAHAN</button>
+                </div>`;
             });
         } catch (e) {}
     }
@@ -140,13 +158,17 @@
     function kemaskiniSlot() {
         const bilik = document.getElementById('bilik').value;
         const tarikhVal = document.getElementById('tarikh').value;
-        const container = document.getElementById('slotGrid');
-        if (!bilik || !tarikhVal) return;
+        if (!tarikhVal) return;
         const date = new Date(tarikhVal);
         const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+        document.getElementById('hariAuto').innerText = `HARI: ${hariMs[dayName] || '-'}`;
+        
+        const container = document.getElementById('slotGrid');
+        if (!bilik) return;
         const weekNum = getWeekNumber(date);
         const isGanjil = weekNum % 2 !== 0;
         const slotDitempah = dataTempahan.filter(t => t.tarikh.includes(tarikhVal) && t.bilik === bilik).flatMap(t => String(t.waktu).split(", "));
+        
         container.innerHTML = "";
         for (let i = 1; i <= 12; i++) {
             const val = `Waktu ${i}`;
@@ -165,7 +187,7 @@
             if(!isBooked) {
                 div.onclick = () => {
                     const selected = container.querySelectorAll('.selected').length;
-                    if (!div.classList.contains('selected') && selected >= 3) { alert("Maksimum 3 slot sahaja!"); return; }
+                    if (!div.classList.contains('selected') && selected >= 3) { alert("Maksimum 3 slot!"); return; }
                     div.classList.toggle('selected');
                 };
             }
@@ -178,7 +200,7 @@
         const tujuan = document.getElementById('tujuan').value.trim();
         if (selected.length === 0 || tujuan === "") { alert("Pilih slot dan isi Tujuan!"); return; }
         const btn = document.getElementById('submitBtn');
-        btn.disabled = true; btn.innerText = "Menghantar...";
+        btn.disabled = true; btn.innerText = "Hantar...";
         const payload = { 
             nama: document.getElementById('namaGuru').value, 
             bilik: document.getElementById('bilik').value, 
@@ -190,13 +212,11 @@
         fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) }).then(() => location.reload());
     }
 
-    async function batalTempahan(rowIdx) {
-        if (prompt("Masukkan Kata Laluan Admin:") === "admin2026") {
-            if (confirm("Adakah anda pasti mahu membatalkan tempahan ini?")) {
-                await fetch(`${scriptURL}?action=delete&row=${rowIdx + 2}`, { method: 'POST', mode: 'no-cors' });
-                location.reload();
-            }
-        } else { alert("Kata laluan salah!"); }
+    async function batalTempahan(idx) {
+        if (prompt("Kata Laluan Admin:") === "admin2026") {
+            await fetch(`${scriptURL}?action=delete&row=${idx + 2}`, { method: 'POST', mode: 'no-cors' });
+            location.reload();
+        }
     }
     window.onload = muatSenarai;
 </script>
