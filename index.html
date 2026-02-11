@@ -23,9 +23,6 @@
         .slot-card.booked { background: #fff1f2 !important; border-color: #fecdd3 !important; cursor: not-allowed !important; pointer-events: none !important; opacity: 0.8; }
         .slot-time { font-weight: 800; font-size: 0.9rem; color: #334155; }
         .slot-range { font-size: 0.7rem; color: #64748b; }
-        .nilam-tag { font-size: 0.6rem; font-weight: 800; padding: 4px 6px; border-radius: 6px; margin-top: 5px; width: fit-content; display: block; border: 1px solid rgba(0,0,0,0.1); }
-        .nilam-bm { background-color: #dcfce7 !important; color: #166534 !important; }
-        .nilam-bi { background-color: #fef9c3 !important; color: #854d0e !important; }
         button#submitBtn { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 16px; margin-top: 25px; cursor: pointer; font-weight: 700; font-size: 1rem; }
         .booking-item { background: white; border-radius: 18px; padding: 15px; margin-bottom: 12px; border: 1px solid #e2e8f0; position: relative; }
         .btn-delete { background: #fff1f2; color: #e11d48; border: 1px solid #fecdd3; padding: 6px 12px; font-size: 0.65rem; border-radius: 8px; font-weight: 700; cursor: pointer; margin-top: 10px; width: 100%; }
@@ -38,9 +35,9 @@
             <img src="https://i.postimg.cc/xCnTTXwg/logo-sk-clifford-kuala-lipis.png" alt="Logo SK Clifford">
             <h2>SISTEM TEMPAHAN BILIK KHAS SK CLIFFORD 2026</h2>
         </div>
-        <div class="alert-info">⚠️ MAKSIMUM 3 SLOT | PENGGILIRAN NILAM OTOMATIK</div>
+        <div class="alert-info">⚠️ MAKSIMUM 3 SLOT | KATA LALUAN DIPERLUKAN UNTUK BATAL</div>
         
-        <form id="tempahanForm">
+        <form id="tempahanForm" onsubmit="hantar(event)">
             <label>Nama Guru</label>
             <select id="namaGuru" required>
                 <option value="">-- Pilih Nama Guru --</option>
@@ -88,9 +85,11 @@
                 <option value="ZUBAIDAH BINTI ABD RAHMAN">ZUBAIDAH BINTI ABD RAHMAN</option>
                 <option value="ZULAZHA BIN AB KADIR">ZULAZHA BIN AB KADIR</option>
             </select>
+
             <label>Tarikh</label>
             <input type="date" id="tarikh" onchange="kemaskiniSlot()" required>
             <div id="hariAuto" class="auto-day">HARI: - | MINGGU: -</div>
+
             <label>Bilik</label>
             <select id="bilik" onchange="kemaskiniSlot()" required>
                 <option value="">-- Pilih Lokasi --</option>
@@ -98,14 +97,16 @@
                 <option value="Pusat Sumber">Pusat Sumber (PSS)</option>
                 <option value="Studio CliPS Channel">Studio CliPS Channel</option>
             </select>
+
             <div id="slotGrid" class="slot-grid"></div>
-            
+
             <label>Tujuan / Kelas (WAJIB)</label>
-            <input type="text" id="tujuan" placeholder="Cth: PdPC Sains 5K / NILAM" required oninvalid="this.setCustomValidity('Sila isi tujuan atau kelas!')" oninput="this.setCustomValidity('')">
-            
+            <input type="text" id="tujuan" placeholder="Cth: PdPC Sains 5K" required>
+
             <label>Catatan</label>
             <textarea id="catatan" rows="2"></textarea>
-            <button type="button" id="submitBtn" onclick="hantar()">HANTAR TEMPAHAN</button>
+
+            <button type="submit" id="submitBtn">HANTAR TEMPAHAN</button>
         </form>
         <div id="senaraiTempahan" style="margin-top: 30px;"></div>
     </div>
@@ -113,18 +114,16 @@
 
 <script>
     const scriptURL = 'https://script.google.com/macros/s/AKfycby_QiB1E0U5chktoZWBpEKPrizuNDCGh9mORJGWdC8rwbzWJnOvDG3TCvnr8H5OIwz2wg/exec';
-    const KATA_LALUAN_ADMIN = "admin2026"; 
+    const KATA_LALUAN_ADMIN = "admin2026";
     let dataTempahan = [];
     const jadualMasa = { 1: "07:35", 2: "08:05", 3: "08:35", 4: "09:05", 5: "09:35", 6: "10:05", 7: "10:35", 8: "11:05", 9: "11:35", 10: "12:05", 11: "12:35", 12: "01:05" };
     const hariMs = { 'Monday': 'ISNIN', 'Tuesday': 'SELASA', 'Wednesday': 'RABU', 'Thursday': 'KHAMIS', 'Friday': 'JUMAAT' };
-    
+
     function getMingguAkademik(tarikhInput) {
         const tkh = new Date(tarikhInput);
         const mulaSekolah = new Date("2026-01-12");
-        const diffInMs = tkh - mulaSekolah;
-        const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
-        if (diffInDays < 0) return 0; 
-        return Math.floor(diffInDays / 7) + 1;
+        const diffInDays = Math.floor((tkh - mulaSekolah) / (1000 * 60 * 60 * 24));
+        return diffInDays < 0 ? 0 : Math.floor(diffInDays / 7) + 1;
     }
 
     async function muatSenarai() {
@@ -153,8 +152,7 @@
         if (!tarikhVal || !bilik) return;
         const date = new Date(tarikhVal);
         const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
-        const minggu = getMingguAkademik(tarikhVal);
-        document.getElementById('hariAuto').innerText = `HARI: ${hariMs[dayName] || 'CUTI'} | MINGGU: ${minggu}`;
+        document.getElementById('hariAuto').innerText = `HARI: ${hariMs[dayName] || 'CUTI'} | MINGGU: ${getMingguAkademik(tarikhVal)}`;
         const container = document.getElementById('slotGrid');
         const slotDitempah = dataTempahan.filter(t => (t.tarikh.includes('T') ? t.tarikh.split('T')[0] : t.tarikh) === tarikhVal && t.bilik === bilik).flatMap(t => String(t.waktu).split(", "));
         container.innerHTML = "";
@@ -174,50 +172,42 @@
         }
     }
 
-    async function hantar() {
-        const inputTujuan = document.getElementById('tujuan');
-        const tujuanVal = inputTujuan.value.trim();
-        const nama = document.getElementById('namaGuru').value;
-        const bilik = document.getElementById('bilik').value;
-        const tarikh = document.getElementById('tarikh').value;
+    async function hantar(event) {
+        event.preventDefault(); // Halang refresh automatik
+        
         const selected = Array.from(document.querySelectorAll('.slot-card.selected .slot-time')).map(el => el.innerText);
-
-        // KUNCI MATI: JIKA TUJUAN KOSONG
-        if (!tujuanVal) {
-            alert("MAAF! Anda WAJIB mengisi TUJUAN / KELAS.");
-            inputTujuan.focus();
-            return false;
-        }
-
-        if (!nama || !bilik || !tarikh || selected.length === 0) {
-            alert("Sila lengkapkan Nama, Tarikh, Bilik dan pilih Slot!");
-            return false;
-        }
+        if (selected.length === 0) { alert("Sila pilih sekurang-kurangnya satu slot waktu!"); return; }
 
         const btn = document.getElementById('submitBtn');
         btn.disabled = true; btn.innerText = "Menghantar...";
 
         const payload = {
-            nama: nama,
-            bilik: bilik,
-            tarikh: tarikh,
-            tujuan: tujuanVal,
+            nama: document.getElementById('namaGuru').value,
+            bilik: document.getElementById('bilik').value,
+            tarikh: document.getElementById('tarikh').value,
+            tujuan: document.getElementById('tujuan').value,
             waktu: selected.join(", "),
             catatan: document.getElementById('catatan').value
         };
 
-        await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-        location.reload();
+        try {
+            await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+            alert("Tempahan Berjaya Dihantar!");
+            location.reload();
+        } catch (e) {
+            alert("Ralat! Sila cuba lagi.");
+            btn.disabled = false; btn.innerText = "HANTAR TEMPAHAN";
+        }
     }
 
     async function batalTempahan(idx) {
         const pass = prompt("Sila masukkan Kata Laluan Admin:");
         if (pass === KATA_LALUAN_ADMIN) {
-            await fetch(`${scriptURL}?action=delete&row=${idx + 2}`, { method: 'POST', mode: 'no-cors' });
-            location.reload();
-        } else if (pass !== null) {
-            alert("SALAH!");
-        }
+            if(confirm("Confirm nak batal?")){
+                await fetch(`${scriptURL}?action=delete&row=${idx + 2}`, { method: 'POST', mode: 'no-cors' });
+                location.reload();
+            }
+        } else if (pass !== null) { alert("SALAH!"); }
     }
     window.onload = muatSenarai;
 </script>
