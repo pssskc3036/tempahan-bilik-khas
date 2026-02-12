@@ -7,49 +7,63 @@
     <title>SISTEM TEMPAHAN BILIK KHAS SK CLIFFORD</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #2563eb; --bg: #f8fafc; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; padding: 15px; background-color: var(--bg); color: #1e293b; }
+        :root { --primary: #2563eb; --bg: #f8fafc; --success: #22c55e; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; padding: 15px; background-color: var(--bg); color: #1e293b; line-height: 1.5; }
         .container { max-width: 500px; margin: auto; background: white; padding: 25px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        
+        /* Header Section */
         .header { text-align: center; margin-bottom: 20px; }
         .header img { width: 80px; margin-bottom: 10px; }
         .header h2 { color: var(--primary); font-size: 1.1rem; font-weight: 800; margin: 0; text-transform: uppercase; }
+        
         .alert-box { background: #eff6ff; border: 1px solid #dbeafe; color: #1e40af; padding: 10px; border-radius: 12px; font-size: 0.75rem; text-align: center; margin-bottom: 15px; font-weight: 700; }
+        
         label { display: block; margin-top: 15px; font-weight: 600; color: #64748b; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; }
-        select, input, textarea { width: 100%; padding: 14px; margin-top: 6px; border: 2px solid #f1f5f9; border-radius: 12px; box-sizing: border-box; font-family: inherit; background: #f8fafc; font-size: 14px; }
+        select, input, textarea { width: 100%; padding: 14px; margin-top: 6px; border: 2px solid #f1f5f9; border-radius: 12px; box-sizing: border-box; font-family: inherit; background: #f8fafc; font-size: 14px; transition: 0.3s; }
+        select:focus, input:focus { border-color: var(--primary); outline: none; background: white; }
+        
         .info-bar { border-left: 4px solid var(--primary); background: #f0f7ff; padding: 12px; border-radius: 4px; margin-top: 8px; font-weight: 700; color: #1e40af; font-size: 0.9rem; }
-        .divider { border-top: 1px solid #e2e8f0; margin: 25px 0; position: relative; text-align: center; }
-        .divider span { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: white; padding: 0 15px; font-size: 0.65rem; font-weight: 800; color: var(--primary); text-transform: uppercase; }
+        
+        /* Slot Grid System */
         .slot-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
         .slot-card { background: white; border: 2px solid #f1f5f9; padding: 12px; border-radius: 14px; cursor: pointer; transition: 0.2s; min-height: 80px; display: flex; flex-direction: column; justify-content: center; position: relative; }
-        .slot-card.selected { border-color: var(--primary); background: #eff6ff; }
+        .slot-card.selected { border-color: var(--primary); background: #eff6ff; box-shadow: 0 0 0 1px var(--primary); }
         .slot-card.booked { background: #fee2e2 !important; border-color: #fecaca !important; cursor: not-allowed; opacity: 0.7; }
-        .nilam-tag { font-size: 0.6rem; font-weight: 800; padding: 4px 8px; border-radius: 6px; margin-top: 6px; width: fit-content; line-height: 1.2; }
-        .tag-bm { background: #dcfce7; color: #166534; }
-        .tag-bi { background: #fef9c3; color: #854d0e; }
-        button#btn { width: 100%; padding: 18px; background: var(--primary); color: white; border: none; border-radius: 16px; margin-top: 25px; font-weight: 800; cursor: pointer; font-size: 1rem; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
         
-        /* Gaya Senarai Tempahan (Live Feed) */
-        .live-feed { margin-top: 30px; }
-        .feed-title { font-size: 0.75rem; font-weight: 800; color: #64748b; margin-bottom: 10px; text-transform: uppercase; }
-        .feed-card { background: white; border: 1px solid #e2e8f0; padding: 15px; border-radius: 16px; margin-bottom: 12px; border-bottom: 4px solid #e2e8f0; }
-        .feed-date { color: #2563eb; font-weight: 800; font-size: 0.8rem; margin-bottom: 4px; display: block; }
-        .feed-name { font-weight: 800; font-size: 0.95rem; color: #1e293b; display: block; }
-        .feed-detail { font-size: 0.8rem; color: #64748b; margin-top: 4px; display: block; }
+        /* NILAM Tags */
+        .nilam-tag { font-size: 0.6rem; font-weight: 800; padding: 4px 8px; border-radius: 6px; margin-top: 6px; width: fit-content; line-height: 1.2; }
+        .tag-bm { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .tag-bi { background: #fef9c3; color: #854d0e; border: 1px solid #fef08a; }
+        
+        .divider { border-top: 1px solid #e2e8f0; margin: 25px 0; position: relative; text-align: center; }
+        .divider span { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: white; padding: 0 15px; font-size: 0.65rem; font-weight: 800; color: var(--primary); text-transform: uppercase; }
+        
+        button#btn { width: 100%; padding: 18px; background: var(--primary); color: white; border: none; border-radius: 16px; margin-top: 25px; font-weight: 800; cursor: pointer; font-size: 1rem; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); transition: 0.3s; }
+        button#btn:disabled { background: #94a3b8; cursor: not-allowed; transform: none; box-shadow: none; }
+        
+        /* Live Feed Section */
+        .live-feed { margin-top: 35px; border-top: 2px dashed #e2e8f0; padding-top: 20px; }
+        .feed-title { font-size: 0.75rem; font-weight: 800; color: #64748b; margin-bottom: 15px; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+        .feed-card { background: white; border: 1px solid #e2e8f0; padding: 15px; border-radius: 18px; margin-bottom: 12px; border-bottom: 4px solid #e2e8f0; transition: 0.2s; }
+        .feed-date { color: var(--primary); font-weight: 800; font-size: 0.8rem; display: block; margin-bottom: 4px; }
+        .feed-name { font-weight: 800; font-size: 0.95rem; color: #1e293b; }
+        .feed-detail { font-size: 0.8rem; color: #64748b; margin-top: 5px; display: block; border-top: 1px solid #f1f5f9; padding-top: 5px; }
     </style>
 </head>
 <body>
+
 <div class="container">
     <div class="header">
-        <img src="https://i.postimg.cc/xCnTTXwg/logo-sk-clifford-kuala-lipis.png">
-        <h2>SISTEM TEMPAHAN BILIK KHAS SK CLIFFORD 2026</h2>
+        <img src="https://i.postimg.cc/xCnTTXwg/logo-sk-clifford-kuala-lipis.png" alt="Logo">
+        <h2>SK CLIFFORD: TEMPAHAN BILIK KHAS</h2>
     </div>
 
     <div class="alert-box">⚠️ MAKSIMUM 3 SLOT | PENGGILIRAN NILAM AUTO</div>
 
-    <form id="mainForm" onsubmit="hantar(event)">
+    <form id="bookingForm" onsubmit="hantar(event)">
         <label>NAMA GURU</label>
         <select id="nama" required>
-            <option value="">-- Pilih Nama Guru --</option>
+            <option value="">-- Pilih Nama --</option>
             <option value="ROHADI BIN KAMALUDIN">ROHADI BIN KAMALUDIN</option>
             <option value="LUKMAN HAKIM BIN ABDULLAH">LUKMAN HAKIM BIN ABDULLAH</option>
             <option value="JAMILAH BINTI LUDIN">JAMILAH BINTI LUDIN</option>
@@ -95,38 +109,38 @@
             <option value="ZULAZHA BIN AB KADIR">ZULAZHA BIN AB KADIR</option>
         </select>
 
-        <label>TARIKH</label>
+        <label>TARIKH TEMPAHAN</label>
         <input type="date" id="tarikh" onchange="updateUI()" required>
         <div id="infoBar" class="info-bar">HARI: - | MINGGU: -</div>
 
-        <label>BILIK</label>
+        <label>LOKASI BILIK</label>
         <select id="bilik" onchange="updateUI()" required>
             <option value="">-- Pilih Lokasi --</option>
             <option value="Makmal Komputer">Makmal Komputer</option>
-            <option value="Pusat Sumber">Pusat Sumber</option>
+            <option value="Pusat Sumber">Pusat Sumber (PSS)</option>
             <option value="Studio CliPS Channel">Studio CliPS Channel</option>
         </select>
 
-        <label>PILIH SLOT PDPC (WAKTU 1 - 12)</label>
+        <label>PILIH SLOT WAKTU (PDPC)</label>
         <div id="slotGrid" class="slot-grid"></div>
 
-        <div class="divider"><span>Tempahan Selepas Waktu Persekolahan</span></div>
+        <div class="divider"><span>Atau Waktu Luar Sekolah</span></div>
 
-        <label>NYATAKAN WAKTU (WAJIB JIKA TIADA SLOT DIPILIH)</label>
+        <label>WAKTU MANUAL (JIKA TIADA SLOT)</label>
         <input type="text" id="waktuManual" placeholder="Cth: 2.30 - 4.30 Petang">
 
-        <label>TUJUAN / KELAS (WAJIB)</label>
-        <input type="text" id="tujuan" placeholder="Cth: PdPC Sains 5K / Kelas Tambahan" required>
+        <label>TUJUAN / KELAS</label>
+        <input type="text" id="tujuan" placeholder="Cth: PdPc Sains 4 Cerdik" required>
 
-        <label>CATATAN</label>
-        <textarea id="catatan" rows="2" placeholder="Catatan tambahan (jika ada)"></textarea>
+        <label>CATATAN (JIKA ADA)</label>
+        <textarea id="catatan" rows="2" placeholder="Sila nyatakan jika ada keperluan khas..."></textarea>
 
         <button type="submit" id="btn">HANTAR TEMPAHAN</button>
     </form>
 
     <div class="live-feed">
-        <div class="feed-title">SENARAI TEMPAHAN TERKINI</div>
-        <div id="feedList">Memuatkan senarai...</div>
+        <div class="feed-title">📌 TEMPAHAN TERKINI</div>
+        <div id="feedList">Memuatkan data...</div>
     </div>
 </div>
 
@@ -135,19 +149,17 @@
     const masa = { 1:"07:35", 2:"08:05", 3:"08:35", 4:"09:05", 5:"09:35", 6:"10:35", 7:"11:05", 8:"11:35", 9:"12:05", 10:"12:35", 11:"01:05", 12:"01:35" };
     const hariMs = { 'Monday':'ISNIN', 'Tuesday':'SELASA', 'Wednesday':'RABU', 'Thursday':'KHAMIS', 'Friday':'JUMAAT' };
     
-    // Data NILAM
+    // Database NILAM (BM & BI)
     const dataBM = { 'Monday':{5:'3A',6:'3A',7:'1A',8:'1A',10:'4A',11:'4A'}, 'Tuesday':{1:'6E',2:'6E',6:'4K',7:'4K',9:'6K',10:'6K',11:'6A',12:'6A'}, 'Wednesday':{1:'4E',2:'4E',3:'2A',4:'2A',5:'3K',6:'3K',7:'5A',8:'5A',9:'1E',10:'1E'}, 'Thursday':{1:'2E',2:'2E',5:'1K',6:'1K',10:'5E',11:'5E'}, 'Friday':{3:'2K',4:'2K',5:'3E',6:'3E',7:'5K',8:'5K'} };
     const dataBI = { 'Monday':{4:'5K',5:'5K',8:'2E',9:'2E',10:'2A',11:'2A'}, 'Tuesday':{2:'4K',3:'4K',5:'1A',6:'1A',7:'6K',8:'6K',10:'3E',11:'3E'}, 'Wednesday':{4:'5A',5:'5A',6:'4E',7:'4E',9:'3K',10:'3K'}, 'Thursday':{3:'4A',4:'4A',5:'3A',6:'3A',7:'5E',8:'5E',9:'1K',10:'1K'}, 'Friday':{2:'6A',3:'6A',4:'6E',5:'6E',6:'2K',7:'2K',8:'1E',9:'1E'} };
 
-    // Ambil data pertama kali
-    window.onload = loadData;
+    window.onload = init;
 
-    function loadData() {
-        google.script.run.withSuccessHandler(res => { 
-            db = res; 
+    function init() {
+        google.script.run.withSuccessHandler(res => {
+            db = res;
             renderFeed();
-            updateUI(); // Segarkan slot kalau tarikh dah dipilih
-        }).readData(); 
+        }).readData();
     }
 
     function updateUI() {
@@ -163,10 +175,10 @@
         const minggu = Math.floor((d - mula) / (7 * 24 * 60 * 60 * 1000)) + 1;
         const isGanjil = minggu % 2 !== 0;
 
-        document.getElementById('infoBar').innerText = `HARI: ${hariMs[dayName] || '-'} | MINGGU: ${minggu}`;
+        document.getElementById('infoBar').innerText = `HARI: ${hariMs[dayName] || 'BUKAN HARI SEKOLAH'} | MINGGU: ${minggu}`;
         if(!blk) return;
 
-        // Cari slot yang dah kena tempah
+        // Cek data tempahan sedia ada
         let booked = db.filter(r => {
             let rDate = new Date(r.tarikh).toISOString().split('T')[0];
             return rDate === tkh && r.bilik === blk;
@@ -175,42 +187,45 @@
         for(let i=1; i<=12; i++) {
             let label = `Waktu ${i}`;
             let isFull = booked.includes(label);
-            let tag = "";
+            let tagHTML = "";
 
+            // LOGIK NILAM MENGIKUT BILIK & MINGGU
             if(blk === "Makmal Komputer") {
-                if(isGanjil && dataBM[dayName]?.[i]) tag = `<div class="nilam-tag tag-bm">NILAM BM (${dataBM[dayName][i]})</div>`;
-                else if(!isGanjil && dataBI[dayName]?.[i]) tag = `<div class="nilam-tag tag-bi">NILAM BI (${dataBI[dayName][i]})</div>`;
-            } else if(blk === "Pusat Sumber") {
-                if(isGanjil && dataBI[dayName]?.[i]) tag = `<div class="nilam-tag tag-bi">NILAM BI (${dataBI[dayName][i]})</div>`;
-                else if(!isGanjil && dataBM[dayName]?.[i]) tag = `<div class="nilam-tag tag-bm">NILAM BM (${dataBM[dayName][i]})</div>`;
+                if(isGanjil && dataBM[dayName]?.[i]) tagHTML = `<div class="nilam-tag tag-bm">NILAM BM (${dataBM[dayName][i]})</div>`;
+                else if(!isGanjil && dataBI[dayName]?.[i]) tagHTML = `<div class="nilam-tag tag-bi">NILAM BI (${dataBI[dayName][i]})</div>`;
+            } else if(blk === "Pusat Sumber (PSS)") {
+                if(isGanjil && dataBI[dayName]?.[i]) tagHTML = `<div class="nilam-tag tag-bi">NILAM BI (${dataBI[dayName][i]})</div>`;
+                else if(!isGanjil && dataBM[dayName]?.[i]) tagHTML = `<div class="nilam-tag tag-bm">NILAM BM (${dataBM[dayName][i]})</div>`;
             }
 
             const card = document.createElement('div');
             card.className = `slot-card ${isFull ? 'booked' : ''}`;
-            card.innerHTML = `<small style="font-size:0.65rem">${masa[i]}</small><b>${label}</b>${tag}`;
-            if(!isFull) card.onclick = () => {
-                if(!card.classList.contains('selected') && document.querySelectorAll('.selected').length >= 3) return alert("Maksimum 3 slot!");
-                card.classList.toggle('selected');
-            };
+            card.innerHTML = `<small style="font-size:0.6rem; color:#64748b">${masa[i]}</small><b style="font-size:0.9rem">${label}</b>${tagHTML}`;
+            
+            if(!isFull) {
+                card.onclick = () => {
+                    if(!card.classList.contains('selected') && document.querySelectorAll('.selected').length >= 3) return alert("Maksimum 3 slot PdPc sahaja.");
+                    card.classList.toggle('selected');
+                };
+            } else {
+                card.innerHTML += `<span style="color:#ef4444; font-size:0.6rem; font-weight:800; margin-top:2px;">DITEMPAH</span>`;
+            }
             grid.appendChild(card);
         }
     }
 
     function renderFeed() {
         const list = document.getElementById('feedList');
-        if (db.length === 0) {
-            list.innerHTML = "Tiada tempahan lagi.";
-            return;
-        }
+        if (db.length === 0) { list.innerHTML = "<small>Tiada tempahan direkodkan.</small>"; return; }
+        
         list.innerHTML = db.slice(-5).reverse().map(r => {
-            let t = new Date(r.tarikh);
-            let tStr = t.toLocaleDateString('ms-MY', {weekday:'long', day:'numeric', month:'numeric', year:'numeric'});
+            const dt = new Date(r.tarikh).toLocaleDateString('ms-MY');
             return `
-            <div class="feed-card">
-                <span class="feed-date">🗓️ ${tStr.toUpperCase()} | ${r.bilik}</span>
-                <span class="feed-name">${r.nama}</span>
-                <span class="feed-detail">🕒 ${r.waktu} | 📌 ${r.tujuan}</span>
-            </div>
+                <div class="feed-card">
+                    <span class="feed-date">🗓️ ${dt} | ${r.bilik}</span>
+                    <span class="feed-name">${r.nama}</span>
+                    <span class="feed-detail">🕒 ${r.waktu} | 📌 ${r.tujuan}</span>
+                </div>
             `;
         }).join("");
     }
@@ -218,44 +233,45 @@
     function hantar(e) {
         e.preventDefault();
         const sel = Array.from(document.querySelectorAll('.selected b')).map(el => el.innerText);
-        const wktManual = document.getElementById('waktuManual').value;
+        const manual = document.getElementById('waktuManual').value;
         
-        if(sel.length === 0 && !wktManual) return alert("Sila pilih slot waktu atau nyatakan waktu manual!");
+        if(sel.length === 0 && !manual) return alert("Sila pilih slot waktu atau isi waktu manual.");
         
         const btn = document.getElementById('btn');
-        btn.disabled = true; 
+        btn.disabled = true;
         btn.innerText = "Sila tunggu...";
 
-        const payload = {
+        const data = {
             nama: document.getElementById('nama').value,
             tarikh: document.getElementById('tarikh').value,
             bilik: document.getElementById('bilik').value,
-            waktu: sel.length > 0 ? sel.join(", ") : wktManual,
+            waktu: sel.length > 0 ? sel.join(", ") : manual,
             tujuan: document.getElementById('tujuan').value,
             catatan: document.getElementById('catatan').value
         };
 
-        google.script.run.withSuccessHandler((res) => {
-            if (res === "Berjaya") {
-                alert("Tempahan Berjaya Disimpan!");
-                // Jangan reload penuh, panggil loadData sahaja untuk segarkan list & slot
-                document.getElementById('mainForm').reset();
-                document.getElementById('slotGrid').innerHTML = "";
-                document.getElementById('infoBar').innerText = "HARI: - | MINGGU: -";
+        google.script.run
+            .withSuccessHandler(res => {
+                if(res === "SUCCESS") {
+                    alert("Tempahan Berjaya!");
+                    document.getElementById('bookingForm').reset();
+                    document.getElementById('slotGrid').innerHTML = "";
+                    document.getElementById('infoBar').innerText = "HARI: - | MINGGU: -";
+                    init(); // Reload data feed
+                } else {
+                    alert("Ralat: " + res);
+                }
                 btn.disabled = false;
                 btn.innerText = "HANTAR TEMPAHAN";
-                loadData(); 
-            } else {
-                alert("Ralat: " + res);
+            })
+            .withFailureHandler(err => {
+                alert("Gangguan talian. Sila cuba lagi.");
                 btn.disabled = false;
                 btn.innerText = "HANTAR TEMPAHAN";
-            }
-        }).withFailureHandler(err => {
-            alert("Sistem sibuk. Sila cuba sebentar lagi.");
-            btn.disabled = false;
-            btn.innerText = "HANTAR TEMPAHAN";
-        }).doPost(payload);
+            })
+            .doPost(data);
     }
 </script>
+
 </body>
 </html>
