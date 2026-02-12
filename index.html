@@ -27,9 +27,14 @@
         .tag-bm { background: #dcfce7; color: #166534; }
         .tag-bi { background: #fef9c3; color: #854d0e; }
         button#btn { width: 100%; padding: 18px; background: var(--primary); color: white; border: none; border-radius: 16px; margin-top: 25px; font-weight: 800; cursor: pointer; font-size: 1rem; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
+        
+        /* Gaya Senarai Tempahan (Live Feed) */
         .live-feed { margin-top: 30px; }
-        .feed-card { background: white; border: 1px solid #e2e8f0; padding: 15px; border-radius: 16px; margin-bottom: 12px; font-size: 0.8rem; }
-        .feed-header { color: var(--primary); font-weight: 800; text-transform: uppercase; margin-bottom: 5px; }
+        .feed-title { font-size: 0.75rem; font-weight: 800; color: #64748b; margin-bottom: 10px; text-transform: uppercase; }
+        .feed-card { background: white; border: 1px solid #e2e8f0; padding: 15px; border-radius: 16px; margin-bottom: 12px; border-bottom: 4px solid #e2e8f0; }
+        .feed-date { color: #2563eb; font-weight: 800; font-size: 0.8rem; margin-bottom: 4px; display: block; }
+        .feed-name { font-weight: 800; font-size: 0.95rem; color: #1e293b; display: block; }
+        .feed-detail { font-size: 0.8rem; color: #64748b; margin-top: 4px; display: block; }
     </style>
 </head>
 <body>
@@ -119,9 +124,9 @@
         <button type="submit" id="btn">HANTAR TEMPAHAN</button>
     </form>
 
-    <div class="live-feed" id="feedArea">
-        <label>SENARAI TEMPAHAN TERKINI</label>
-        <div id="feedList"></div>
+    <div class="live-feed">
+        <div class="feed-title">SENARAI TEMPAHAN TERKINI</div>
+        <div id="feedList">Memuatkan senarai...</div>
     </div>
 </div>
 
@@ -134,12 +139,16 @@
     const dataBM = { 'Monday':{5:'3A',6:'3A',7:'1A',8:'1A',10:'4A',11:'4A'}, 'Tuesday':{1:'6E',2:'6E',6:'4K',7:'4K',9:'6K',10:'6K',11:'6A',12:'6A'}, 'Wednesday':{1:'4E',2:'4E',3:'2A',4:'2A',5:'3K',6:'3K',7:'5A',8:'5A',9:'1E',10:'1E'}, 'Thursday':{1:'2E',2:'2E',5:'1K',6:'1K',10:'5E',11:'5E'}, 'Friday':{3:'2K',4:'2K',5:'3E',6:'3E',7:'5K',8:'5K'} };
     const dataBI = { 'Monday':{4:'5K',5:'5K',8:'2E',9:'2E',10:'2A',11:'2A'}, 'Tuesday':{2:'4K',3:'4K',5:'1A',6:'1A',7:'6K',8:'6K',10:'3E',11:'3E'}, 'Wednesday':{4:'5A',5:'5A',6:'4E',7:'4E',9:'3K',10:'3K'}, 'Thursday':{3:'4A',4:'4A',5:'3A',6:'3A',7:'5E',8:'5E',9:'1K',10:'1K'}, 'Friday':{2:'6A',3:'6A',4:'6E',5:'6E',6:'2K',7:'2K',8:'1E',9:'1E'} };
 
-    window.onload = () => { 
+    // Ambil data pertama kali
+    window.onload = loadData;
+
+    function loadData() {
         google.script.run.withSuccessHandler(res => { 
             db = res; 
             renderFeed();
+            updateUI(); // Segarkan slot kalau tarikh dah dipilih
         }).readData(); 
-    };
+    }
 
     function updateUI() {
         const tkh = document.getElementById('tarikh').value;
@@ -157,6 +166,7 @@
         document.getElementById('infoBar').innerText = `HARI: ${hariMs[dayName] || '-'} | MINGGU: ${minggu}`;
         if(!blk) return;
 
+        // Cari slot yang dah kena tempah
         let booked = db.filter(r => {
             let rDate = new Date(r.tarikh).toISOString().split('T')[0];
             return rDate === tkh && r.bilik === blk;
@@ -188,14 +198,21 @@
 
     function renderFeed() {
         const list = document.getElementById('feedList');
-        list.innerHTML = db.slice(-5).reverse().map(r => `
+        if (db.length === 0) {
+            list.innerHTML = "Tiada tempahan lagi.";
+            return;
+        }
+        list.innerHTML = db.slice(-5).reverse().map(r => {
+            let t = new Date(r.tarikh);
+            let tStr = t.toLocaleDateString('ms-MY', {weekday:'long', day:'numeric', month:'numeric', year:'numeric'});
+            return `
             <div class="feed-card">
-                <div class="feed-header">🗓️ ${new Date(r.tarikh).toLocaleDateString('ms-MY')} | ${r.bilik}</div>
-                <b>${r.nama}</b><br>
-                <span>🕒 ${r.waktu}</span><br>
-                <span>📌 ${r.tujuan}</span>
+                <span class="feed-date">🗓️ ${tStr.toUpperCase()} | ${r.bilik}</span>
+                <span class="feed-name">${r.nama}</span>
+                <span class="feed-detail">🕒 ${r.waktu} | 📌 ${r.tujuan}</span>
             </div>
-        `).join("");
+            `;
+        }).join("");
     }
 
     function hantar(e) {
@@ -206,7 +223,8 @@
         if(sel.length === 0 && !wktManual) return alert("Sila pilih slot waktu atau nyatakan waktu manual!");
         
         const btn = document.getElementById('btn');
-        btn.disabled = true; btn.innerText = "Sila tunggu...";
+        btn.disabled = true; 
+        btn.innerText = "Sila tunggu...";
 
         const payload = {
             nama: document.getElementById('nama').value,
@@ -217,9 +235,25 @@
             catatan: document.getElementById('catatan').value
         };
 
-        google.script.run.withSuccessHandler(() => {
-            alert("Tempahan Berjaya Disimpan!");
-            location.reload();
+        google.script.run.withSuccessHandler((res) => {
+            if (res === "Berjaya") {
+                alert("Tempahan Berjaya Disimpan!");
+                // Jangan reload penuh, panggil loadData sahaja untuk segarkan list & slot
+                document.getElementById('mainForm').reset();
+                document.getElementById('slotGrid').innerHTML = "";
+                document.getElementById('infoBar').innerText = "HARI: - | MINGGU: -";
+                btn.disabled = false;
+                btn.innerText = "HANTAR TEMPAHAN";
+                loadData(); 
+            } else {
+                alert("Ralat: " + res);
+                btn.disabled = false;
+                btn.innerText = "HANTAR TEMPAHAN";
+            }
+        }).withFailureHandler(err => {
+            alert("Sistem sibuk. Sila cuba sebentar lagi.");
+            btn.disabled = false;
+            btn.innerText = "HANTAR TEMPAHAN";
         }).doPost(payload);
     }
 </script>
